@@ -1,8 +1,9 @@
 import type { RouteObject } from 'react-router';
 
+import Cookie from 'js-cookie';
 import { lazy, Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
 import { varAlpha } from 'minimal-shared/utils';
+import { Outlet, redirect } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
@@ -14,6 +15,7 @@ import { DashboardLayout } from 'src/layouts/dashboard';
 
 export const DashboardPage = lazy(() => import('src/pages/dashboard'));
 export const BlogPage = lazy(() => import('src/pages/blog'));
+export const ServicePage = lazy(() => import('src/pages/service'));
 export const UserPage = lazy(() => import('src/pages/user'));
 export const SignInPage = lazy(() => import('src/pages/sign-in'));
 export const ProductsPage = lazy(() => import('src/pages/products'));
@@ -39,6 +41,22 @@ const renderFallback = () => (
   </Box>
 );
 
+const receptionistLoader = () => {
+  const userRole = Cookie.get('user_role');
+  if (userRole !== 'receptionist') {
+    return redirect('/404');
+  }
+  return null;
+};
+
+const receptionistAndAdminLoader = () => {
+  const userRole = Cookie.get('user_role');
+  if (userRole !== 'receptionist' && userRole !== 'admin') {
+    return redirect('/404');
+  }
+  return null;
+};
+
 export const routesSection: RouteObject[] = [
   {
     element: (
@@ -53,6 +71,8 @@ export const routesSection: RouteObject[] = [
       { path: 'user', element: <UserPage /> },
       { path: 'products', element: <ProductsPage /> },
       { path: 'blog', element: <BlogPage /> },
+      { path: 'services', element: <ServicePage />, loader: receptionistLoader },
+      { path: 'statistic', element: <BlogPage />, loader: receptionistAndAdminLoader },
     ],
   },
   {

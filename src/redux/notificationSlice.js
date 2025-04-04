@@ -1,7 +1,7 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const notificationSlide = createSlice({
-  name: 'notification',
+  name: "notification",
   initialState: {
     getAll: {
       notifications: null,

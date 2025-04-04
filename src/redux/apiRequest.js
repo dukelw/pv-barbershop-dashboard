@@ -1,6 +1,8 @@
 /* eslint-disable perfectionist/sort-imports */
+/* eslint-disable no-prototype-builtins */
 /* eslint-disable consistent-return */
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 import {
   userSigninStart,
@@ -90,8 +92,26 @@ import {
   updateSliderStart,
   updateSliderSuccess,
 } from './sliderSlice';
+import {
+  createServiceFailure,
+  createServiceStart,
+  createServiceSuccess,
+  deleteServiceFailure,
+  deleteServiceStart,
+  deleteServiceSuccess,
+  getAllServicesFailure,
+  getAllServicesStart,
+  getAllServicesSuccess,
+  getServiceFailure,
+  getServiceStart,
+  getServiceSuccess,
+  updateServiceFailure,
+  updateServiceStart,
+  updateServiceSuccess,
+} from './serviceSlice';
 
-const REACT_APP_BASE_URL = process.env.REACT_APP_BASE_URL;
+const REACT_APP_BASE_URL = import.meta.env.VITE_REACT_APP_BASE_URL;
+console.log(REACT_APP_BASE_URL); // Sẽ in ra giá trị của VITE_REACT_APP_BASE_URL
 
 // Start user
 export const signin = async (user, dispatch, navigate) => {
@@ -99,13 +119,26 @@ export const signin = async (user, dispatch, navigate) => {
   try {
     const res = await axios.post(`${REACT_APP_BASE_URL}user/signin`, user);
     const refreshToken = res.data.metadata.tokens.refreshToken;
+    const accessToken = res.data.metadata.tokens.accessToken;
+    const userInformation = res.data.metadata.user;
     localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('accessToken', accessToken);
+    Cookies.set('refreshToken', refreshToken, {
+      expires: 7,
+    });
+    for (let key in userInformation) {
+      if (userInformation.hasOwnProperty(key)) {
+        Cookies.set(key, userInformation[key], {
+          expires: 7,
+        });
+      }
+    }
     dispatch(userSigninSuccess(res.data));
     const role = res.data.metadata.user.user_role;
     if (role === 'customer') {
       navigate('/');
     } else {
-      navigate('/workbench');
+      window.location.href = 'http://localhost:3039';
     }
   } catch (error) {
     dispatch(userSigninFailure());
@@ -141,7 +174,7 @@ export const logout = async (accessToken, userID, dispatch, navigate, axiosJWT) 
       }
     );
     dispatch(userLogoutSuccess());
-    window.location.href = 'http://localhost:3000/signin';
+    navigate('/');
   } catch (error) {
     dispatch(userLogoutFailure());
   }
@@ -245,7 +278,7 @@ export const uploadImage = async (file, folderName, dispatch) => {
   formData.append('folderName', folderName);
   dispatch(uploadImageStart());
   try {
-    const res = await axios.post(`${REACT_APP_BASE_URL}upload/answer-image`, formData, {
+    const res = await axios.post(`${REACT_APP_BASE_URL}upload/image`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -561,3 +594,90 @@ export const deleteCollection = async (accessToken, collection, dispatch, axiosJ
 };
 
 // End slider
+
+// Start service
+
+export const getService = async (ID, dispatch) => {
+  dispatch(getServiceStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}service/${ID}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getServiceSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching service:', error);
+    dispatch(getServiceFailure());
+  }
+};
+
+export const getAllServices = async (dispatch) => {
+  dispatch(getAllServicesStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}service/all`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getAllServicesSuccess(res.data));
+    console.log(res);
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(getAllServicesFailure());
+  }
+};
+
+export const createService = async (accessToken, service, dispatch, navigate, axiosJWT) => {
+  dispatch(createServiceStart());
+  try {
+    const res = await axiosJWT.post(`${REACT_APP_BASE_URL}service/create`, service, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `${accessToken}`,
+      },
+    });
+    dispatch(createServiceSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    dispatch(createServiceFailure());
+  }
+};
+
+export const updateService = async (accessToken, service, dispatch, navigate, axiosJWT) => {
+  dispatch(updateServiceStart());
+  try {
+    const res = await axiosJWT.put(`${REACT_APP_BASE_URL}service/${service.service_id}`, service, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `${accessToken}`,
+      },
+    });
+    dispatch(updateServiceSuccess(res.data));
+  } catch (error) {
+    dispatch(updateServiceFailure());
+  }
+};
+
+export const deleteService = async (accessToken, ID, dispatch, axiosJWT) => {
+  dispatch(deleteServiceStart());
+  try {
+    await axiosJWT.delete(
+      `${REACT_APP_BASE_URL}service/${ID}`,
+      {},
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `${accessToken}`,
+        },
+      }
+    );
+    dispatch(deleteServiceSuccess());
+  } catch (error) {
+    dispatch(deleteServiceFailure());
+    return false;
+  }
+};
+
+// End service

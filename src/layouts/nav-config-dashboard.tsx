@@ -1,11 +1,19 @@
+/* eslint-disable perfectionist/sort-named-imports */
 import Cookie from 'js-cookie';
 
-import { Label } from 'src/components/label';
-import { SvgColor } from 'src/components/svg-color';
+// Import icons từ MUI
+import {
+  Dashboard,
+  Person,
+  Article,
+  AdminPanelSettings,
+  ShoppingCart,
+  Inventory,
+  Storefront,
+} from '@mui/icons-material';
 
 // ----------------------------------------------------------------------
 
-const icon = (name: string) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} />;
 const userRole = Cookie.get('user_role'); // Lấy userRole từ cookie
 
 export type NavItem = {
@@ -15,58 +23,32 @@ export type NavItem = {
   info?: React.ReactNode;
 };
 
-export const navData = [
+export const navData: NavItem[] = [
   {
     title: 'Dashboard',
     path: '/',
-    icon: icon('ic-analytics'),
+    icon: <Dashboard />,
   },
-  {
-    title: 'User',
-    path: '/user',
-    icon: icon('ic-user'),
-  },
-  {
-    title: 'Product',
-    path: '/products',
-    icon: icon('ic-cart'),
-    info: (
-      <Label color="error" variant="inverted">
-        +3
-      </Label>
-    ),
-  },
-  {
-    title: 'Blog',
-    path: '/blog',
-    icon: icon('ic-blog'),
-  },
-  {
-    title: 'Sign in',
-    path: '/sign-in',
-    icon: icon('ic-lock'),
-  },
-  {
-    title: 'Not found',
-    path: '/404',
-    icon: icon('ic-disabled'),
-  },
-  // Các trang chỉ hiển thị nếu role phù hợp
   ...(userRole === 'admin'
     ? [
         {
           title: 'Admin',
           path: '/admin',
-          icon: icon('ic-admin'),
+          icon: <AdminPanelSettings />,
         },
       ]
     : []),
   ...(userRole === 'receptionist'
     ? [
         {
-          title: 'Receptionist',
-          path: '/receptionist',
-          icon: icon('ic-receptionist'),
+          title: 'Inventory',
+          path: '/inventories',
+          icon: <Inventory />,
+        },
+        {
+          title: 'Service',
+          path: '/services',
+          icon: <ShoppingCart />,
         },
       ]
     : []),
@@ -75,8 +57,18 @@ export const navData = [
         {
           title: 'Staff',
           path: '/staff',
-          icon: icon('ic-user'),
+          icon: <Person />,
         },
       ]
     : []),
+  {
+    title: 'User',
+    path: '/user',
+    icon: <Person />,
+  },
+  {
+    title: 'Blog',
+    path: '/blog',
+    icon: <Article />,
+  },
 ];
