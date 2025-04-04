@@ -111,6 +111,7 @@ export function ServiceView() {
           service_image: createdService.service_image,
         },
       ]);
+      handleGetAllService();
       setCreateOpenForm(false);
     } catch (error) {
       console.error('Error creating service:', error);
@@ -146,9 +147,21 @@ export function ServiceView() {
     }
   };
 
-  const handleDelete = async (serviceID: string) => {
-    await deleteService(accessToken, serviceID, dispatch, axios);
-    await handleGetAllService();
+  const handleDelete = async (service: any) => {
+    console.log('serviceid', service._id);
+    setServices((prevServices) =>
+      prevServices.filter(
+        (s: any) =>
+          service.service_name !== s.service_name && s.service_price !== service.service_price
+      )
+    );
+
+    try {
+      deleteService(accessToken, service._id, dispatch, axios);
+    } catch (error) {
+      console.error('Error deleting service:', error);
+      handleGetAllService();
+    }
   };
 
   const handleGetAllService = async () => {
@@ -193,7 +206,7 @@ export function ServiceView() {
           />
           <TextField
             sx={{ marginTop: '12px' }}
-            label="Service Duration"
+            label="Service Duration (Minute)"
             fullWidth
             type="number"
             value={newService.service_duration}
@@ -220,7 +233,7 @@ export function ServiceView() {
             }}
           />
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ mr: 2 }}>
           <Button onClick={handleCloseForm}>Cancel</Button>
           <Button onClick={handleSubmit} variant="contained" color="primary">
             Save
@@ -256,7 +269,7 @@ export function ServiceView() {
           />
           <TextField
             sx={{ marginTop: '12px' }}
-            label="Service Duration"
+            label="Service Duration (Minute)"
             fullWidth
             type="number"
             value={editService?.service_duration || ''}
@@ -285,7 +298,7 @@ export function ServiceView() {
             }}
           />
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ mr: 2 }}>
           <Button onClick={handleCloseEditForm}>Cancel</Button>
           <Button onClick={handleSaveEdit} variant="contained" color="primary">
             Save
@@ -376,7 +389,7 @@ export function ServiceView() {
                         <Button
                           variant="contained"
                           color="error"
-                          onClick={() => handleDelete(service?._id)}
+                          onClick={() => handleDelete(service)}
                         >
                           Delete
                         </Button>
