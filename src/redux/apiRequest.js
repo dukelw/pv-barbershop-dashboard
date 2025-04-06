@@ -109,9 +109,19 @@ import {
   updateServiceStart,
   updateServiceSuccess,
 } from './serviceSlice';
+import {
+  createAppointmentFailure,
+  createAppointmentStart,
+  createAppointmentSuccess,
+  deleteAppointmentFailure,
+  deleteAppointmentStart,
+  deleteAppointmentSuccess,
+  updateAppointmentFailure,
+  updateAppointmentStart,
+  updateAppointmentSuccess,
+} from './appointmentSlice';
 
 const REACT_APP_BASE_URL = import.meta.env.VITE_REACT_APP_BASE_URL;
-console.log(REACT_APP_BASE_URL); // Sẽ in ra giá trị của VITE_REACT_APP_BASE_URL
 
 // Start user
 export const signin = async (user, dispatch, navigate) => {
@@ -243,6 +253,26 @@ export const findAllUser = async (keySearch = '', dispatch) => {
   dispatch(findAllUsersStart());
   try {
     const link = keySearch === '' ? 'user' : `user?key=${keySearch}`;
+    const res = await axios.get(`${REACT_APP_BASE_URL}${link}`);
+    dispatch(findAllUsersSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    dispatch(findAllUsersFailure());
+  }
+};
+
+export const findAllFreeBarber = async (keySearch = '', startTime, endTime, dispatch) => {
+  dispatch(findAllUsersStart());
+  try {
+    let link = 'user/find-barber?';
+    const params = [];
+
+    if (keySearch) params.push(`key=${encodeURIComponent(keySearch)}`);
+    if (startTime) params.push(`startTime=${encodeURIComponent(startTime)}`);
+    if (endTime) params.push(`endTime=${encodeURIComponent(endTime)}`);
+
+    link += params.join('&');
+
     const res = await axios.get(`${REACT_APP_BASE_URL}${link}`);
     dispatch(findAllUsersSuccess(res.data));
     return res.data;
@@ -681,3 +711,111 @@ export const deleteService = async (accessToken, ID, dispatch, axiosJWT) => {
 };
 
 // End service
+
+// Start appointment
+
+export const getAppointment = async (ID, dispatch) => {
+  dispatch(getServiceStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}appointment/${ID}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getServiceSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching service:', error);
+    dispatch(getServiceFailure());
+  }
+};
+
+export const getAllAppointments = async (dispatch) => {
+  dispatch(getAllServicesStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}appointment/get-all`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getAllServicesSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    dispatch(getAllServicesFailure());
+  }
+};
+
+export const createAppointment = async (appointment, dispatch) => {
+  dispatch(createAppointmentStart());
+  try {
+    const res = await axios.post(`${REACT_APP_BASE_URL}appointment/create`, appointment, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(createAppointmentSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    dispatch(createAppointmentFailure());
+  }
+};
+
+export const updateAppointment = async (accessToken, appointment, dispatch) => {
+  dispatch(updateAppointmentStart());
+  try {
+    const res = await axios.put(
+      `${REACT_APP_BASE_URL}appointment/${appointment._id}`,
+      appointment,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `${accessToken}`,
+        },
+      }
+    );
+    dispatch(updateAppointmentSuccess(res.data));
+  } catch (error) {
+    dispatch(updateAppointmentFailure());
+  }
+};
+
+export const updateAppointmentStatus = async (accessToken, appointmentID, status, dispatch) => {
+  dispatch(updateAppointmentStart());
+  try {
+    const res = await axios.put(
+      `${REACT_APP_BASE_URL}appointment/${appointmentID}/status`,
+      { status },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `${accessToken}`,
+        },
+      }
+    );
+    dispatch(updateAppointmentSuccess(res.data));
+  } catch (error) {
+    dispatch(updateAppointmentFailure());
+  }
+};
+
+export const deleteAppointment = async (accessToken, ID, dispatch) => {
+  dispatch(deleteAppointmentStart());
+  try {
+    await axios.delete(
+      `${REACT_APP_BASE_URL}appointment/${ID}`,
+      {},
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `${accessToken}`,
+        },
+      }
+    );
+    dispatch(deleteAppointmentSuccess());
+  } catch (error) {
+    dispatch(deleteAppointmentFailure());
+    return false;
+  }
+};
+
+// End appointment

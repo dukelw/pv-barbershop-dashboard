@@ -374,12 +374,13 @@ export function ServiceView() {
                           alt={service?.service_name}
                           width="50"
                           height="50"
+                          style={{ borderRadius: '4px' }}
                         />
                       </TableCell>
                       <TableCell>{service?.isActive ? 'Active' : 'Inactive'}</TableCell>
                       <TableCell>
                         <Button
-                          sx={{ marginRight: '12px' }}
+                          sx={{ marginRight: '12px', minWidth: '80px' }}
                           variant="contained"
                           color="primary"
                           onClick={() => handleOpenEditForm(service)}
@@ -387,6 +388,7 @@ export function ServiceView() {
                           Edit
                         </Button>
                         <Button
+                          sx={{ minWidth: '80px', marginTop: '4px' }}
                           variant="contained"
                           color="error"
                           onClick={() => handleDelete(service)}

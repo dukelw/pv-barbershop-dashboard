@@ -10,6 +10,7 @@ import {
   ShoppingCart,
   Inventory,
   Storefront,
+  CalendarToday,
 } from '@mui/icons-material';
 
 // ----------------------------------------------------------------------
@@ -44,6 +45,11 @@ export const navData: NavItem[] = [
           title: 'Inventory',
           path: '/inventories',
           icon: <Inventory />,
+        },
+        {
+          title: 'Appointment',
+          path: '/appointments',
+          icon: <CalendarToday />,
         },
         {
           title: 'Service',
