@@ -6,8 +6,8 @@
   "private": false,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "start": "vite preview",
+    "dev": "vite preview",
+    "start": "vite",
     "build": "tsc && vite build",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "eslint --fix \"src/**/*.{js,jsx,ts,tsx}\"",
