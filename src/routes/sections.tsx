@@ -19,6 +19,7 @@ export const ServicePage = lazy(() => import('src/pages/service'));
 export const SchedulePage = lazy(() => import('src/pages/schedule'));
 export const AppointmentPage = lazy(() => import('src/pages/appointment'));
 export const InventoryPage = lazy(() => import('src/pages/inventory'));
+export const TodaySchedulePage = lazy(() => import('src/pages/today'));
 export const UserPage = lazy(() => import('src/pages/user'));
 export const SignInPage = lazy(() => import('src/pages/sign-in'));
 export const ProductsPage = lazy(() => import('src/pages/products'));
@@ -85,6 +86,7 @@ export const routesSection: RouteObject[] = [
       { path: 'services', element: <ServicePage />, loader: receptionistLoader },
       { path: 'inventories', element: <InventoryPage />, loader: receptionistLoader },
       { path: 'appointments', element: <AppointmentPage />, loader: receptionistLoader },
+      { path: 'today-schedule', element: <TodaySchedulePage />, loader: receptionistLoader },
       { path: 'statistic', element: <BlogPage />, loader: receptionistAndAdminLoader },
       { path: 'schedule', element: <SchedulePage />, loader: staffLoader },
     ],
