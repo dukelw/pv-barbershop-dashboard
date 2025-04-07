@@ -28,7 +28,9 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
+  getAllAppointments,
   getAllAppointmentsOfBarber,
+  getAppointment,
   updateAppointment,
   updateAppointmentProof,
   uploadImage,
@@ -41,6 +43,7 @@ export default function Timetable() {
   const [selectedAppointment, setSelectedAppointment] = useState<any | null>(null);
   const [open, setOpen] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(new Date());
   const currentUser = useSelector((state: any) => state.user.signin.currentUser);
   const accessToken = Cookie.get('access_token');
   const userID = Cookie.get('_id');
@@ -71,19 +74,19 @@ export default function Timetable() {
     }
   };
 
-  const handlePreviousWeek = () => {
-    setCurrentWeek(subWeeks(currentWeek, 1)); // Chuyển sang tuần trước
+  const handlePreviousDay = () => {
+    setCurrentDate((prev) => new Date(prev.setDate(prev.getDate() - 1)));
   };
 
-  const handleNextWeek = () => {
-    setCurrentWeek(addWeeks(currentWeek, 1)); // Chuyển sang tuần sau
+  const handleNextDay = () => {
+    setCurrentDate((prev) => new Date(prev.setDate(prev.getDate() + 1)));
   };
 
-  // Lấy các ngày trong tuần dựa trên tuần hiện tại
-  const weekDays = days.map((day, index) => {
-    const startOfWeekDate = new Date(currentWeek);
-    startOfWeekDate.setDate(startOfWeekDate.getDate() - startOfWeekDate.getDay() + (index + 1));
-    return format(startOfWeekDate, 'dd/MM/yyyy');
+  const weekDays = days.map((_, index) => {
+    const startOfWeekDate = startOfWeek(currentDate, { weekStartsOn: 1 });
+    const dayDate = new Date(startOfWeekDate);
+    dayDate.setDate(dayDate.getDate() + index);
+    return format(dayDate, 'dd/MM/yyyy');
   });
 
   // Lọc các cuộc hẹn cho tuần hiện tại
@@ -98,12 +101,12 @@ export default function Timetable() {
   };
 
   const filteredAppointments = useMemo(
-    () => getAppointmentsForCurrentWeek(currentWeek),
-    [schedules, currentWeek]
+    () => getAppointmentsForCurrentWeek(currentDate),
+    [schedules, currentDate]
   );
 
   const handleGetAllSchedule = async () => {
-    const data = await getAllAppointmentsOfBarber(userID, dispatch);
+    const data = await getAllAppointments(dispatch);
     console.log('data', data);
     setSchedules(data.metadata);
   };
@@ -127,15 +130,17 @@ export default function Timetable() {
     },
   ];
 
+  const todayIndex = (currentDate.getDay() + 6) % 7;
+
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <Button onClick={handlePreviousWeek}>Previous week</Button>
+        <Button onClick={handlePreviousDay}>Yesterday</Button>
         <Typography variant="h4">
-          Weekly schedule from {format(currentWeek, 'dd/MM/yyyy')} to{' '}
-          {format(addWeeks(currentWeek, 1), 'dd/MM/yyyy')}
+          Daily schedule from {format(startOfWeek(currentDate, { weekStartsOn: 1 }), 'dd/MM/yyyy')}{' '}
+          to {format(endOfWeek(currentDate, { weekStartsOn: 1 }), 'dd/MM/yyyy')}
         </Typography>
-        <Button onClick={handleNextWeek}>Following week</Button>
+        <Button onClick={handleNextDay}>Tomorrow</Button>
       </Box>
       <Box sx={{ width: '100%', display: 'flex', justifyContent: 'right', mb: 2, mr: 4 }}>
         {NOTE.map((note, index) => (
@@ -154,7 +159,7 @@ export default function Timetable() {
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: '80px repeat(7, 1fr)', // 1 cột giờ + 7 cột thứ
+          gridTemplateColumns: '80px 1fr', // 1 cột giờ + 1 cột thứ
           gridTemplateRows: '40px repeat(15, 60px)', // 1 hàng header + 15 hàng giờ
           border: '1px solid #ccc',
         }}
@@ -163,24 +168,28 @@ export default function Timetable() {
           sx={{ borderRight: '1px solid #ccc', borderBottom: '1px solid #ccc', bgcolor: '#f0f0f0' }}
         />
 
-        {weekDays.map((day, index) => (
-          <Box
-            key={`header-${day}`}
-            sx={{
-              borderRight: '1px solid #ccc',
-              borderBottom: '1px solid #ccc',
-              textAlign: 'center',
-              fontSize: 12,
-              bgcolor: '#f0f0f0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {days[index]}
-            <br />({day})
-          </Box>
-        ))}
+        {weekDays.map((day, index) => {
+          if (index !== todayIndex) return null;
+
+          return (
+            <Box
+              key={`header-${day}`}
+              sx={{
+                borderRight: '1px solid #ccc',
+                borderBottom: '1px solid #ccc',
+                textAlign: 'center',
+                fontSize: 12,
+                bgcolor: '#f0f0f0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {days[index]}
+              <br />({day})
+            </Box>
+          );
+        })}
 
         {hours.map((hourLabel, hourIndex) => {
           const startHour = 8 + hourIndex;
@@ -201,73 +210,104 @@ export default function Timetable() {
               {hourLabel}
             </Box>,
 
-            ...weekDays.map((_, dayIndex) => (
-              <Box
-                key={`cell-${hourLabel}-${dayIndex}`}
-                sx={{
-                  position: 'relative',
-                  borderRight: '1px solid #eee',
-                  borderBottom: '1px solid #eee',
-                }}
-              >
-                {filteredAppointments.map((apt: any) => {
-                  const start = parseISO(apt.appointment_start);
-                  const end = parseISO(apt.appointment_end);
-                  const aptDay = getDay(start); // Sunday = 0
-                  const displayDay = aptDay === 0 ? 6 : aptDay - 1; // shift: Monday = 0
+            ...weekDays.map((_, dayIndex) => {
+              if (dayIndex !== todayIndex) return null;
+              return (
+                <Box
+                  key={`cell-${hourLabel}-${dayIndex}`}
+                  sx={{
+                    position: 'relative',
+                    borderRight: '1px solid #eee',
+                    borderBottom: '1px solid #eee',
+                  }}
+                >
+                  {filteredAppointments
+                    .filter((apt: any) => {
+                      const start = parseISO(apt.appointment_start);
+                      const aptDay = getDay(start) === 0 ? 6 : getDay(start) - 1;
 
-                  if (displayDay !== dayIndex) return null;
+                      if (aptDay !== dayIndex) return false;
 
-                  const startDecimal = start.getHours() + start.getMinutes() / 60;
-                  const duration = differenceInMinutes(end, start);
-                  const durationInHours = duration / 60;
+                      const startHourDecimal = start.getHours() + start.getMinutes() / 60;
 
-                  if (Math.abs(startDecimal - startHour) < 0.01) {
-                    return (
-                      <Paper
-                        key={apt._id}
-                        sx={{
-                          position: 'absolute',
-                          top: 2,
-                          left: 2,
-                          right: 2,
-                          height: `calc(${durationInHours * 100}% + ${(durationInHours - 1) * 1}px)`,
-                          bgcolor:
-                            apt.status === 'completed'
-                              ? 'green'
-                              : apt.complete_picture
-                                ? '#b76e00'
-                                : '#90caf9',
-                          zIndex: 1,
-                          padding: '2px',
-                          overflow: 'hidden',
-                          whiteSpace: 'nowrap',
-                          fontSize: '0.75rem',
-                          cursor: 'pointer',
-                        }}
-                        onClick={() => {
-                          setSelectedAppointment(apt);
-                          setOpen(true);
-                        }}
-                      >
-                        <Typography variant="caption" fontWeight="bold">
-                          {apt.customer_name || 'Khách lẻ'}
-                        </Typography>
-                        <br />
-                        <Typography variant="caption">
-                          {format(start, 'HH:mm')} - {format(end, 'HH:mm')}
-                        </Typography>
-                      </Paper>
-                    );
-                  }
+                      return startHourDecimal >= startHour && startHourDecimal < startHour + 1;
+                    })
 
-                  return null;
-                })}
-              </Box>
-            )),
+                    .map((apt: any, index: number, arr: any[]) => {
+                      const start = parseISO(apt.appointment_start);
+                      const end = parseISO(apt.appointment_end);
+                      const duration = differenceInMinutes(end, start);
+                      const durationInHours = duration / 60;
+
+                      return (
+                        <Paper
+                          key={apt._id}
+                          sx={{
+                            position: 'absolute',
+                            top: 2,
+                            left: `${(index / arr.length) * 100}%`,
+                            width: `${100 / arr.length}%`,
+                            height: `calc(${durationInHours * 100}% + ${(durationInHours - 1) * 1}px)`,
+                            bgcolor:
+                              apt.status === 'completed'
+                                ? 'green'
+                                : apt.complete_picture
+                                  ? '#b76e00'
+                                  : '#90caf9',
+                            zIndex: 1,
+                            padding: '2px',
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => {
+                            setSelectedAppointment(apt);
+                            setOpen(true);
+                          }}
+                        >
+                          <Typography variant="caption" fontWeight="bold">
+                            {apt.customer_name || 'Khách lẻ'}
+                          </Typography>
+                          <br />
+                          <Typography variant="caption">
+                            {format(start, 'HH:mm')} - {format(end, 'HH:mm')}
+                          </Typography>
+                          <Card
+                            key={apt.barber._id}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              mb: 2,
+                              backgroundColor: 'transparent',
+                            }}
+                          >
+                            <Typography
+                              sx={{ fontSize: '12px', fontWeight: 'bold', marginRight: '4px' }}
+                            >
+                              Barber:
+                            </Typography>
+                            <img
+                              src={apt.barber.user_avatar}
+                              alt={apt.barber.user_name}
+                              width="20"
+                              height="20"
+                              style={{ borderRadius: '50%', marginRight: '4px' }}
+                            />
+                            <Typography sx={{ fontSize: '12px' }}>
+                              {apt.barber.user_name}
+                            </Typography>
+                          </Card>
+                        </Paper>
+                      );
+                    })}
+                </Box>
+              );
+            }),
           ];
         })}
       </Box>
+
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Schedule detail</DialogTitle>
         <DialogContent>

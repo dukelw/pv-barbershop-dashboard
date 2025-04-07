@@ -43,14 +43,19 @@ export const navData: NavItem[] = [
   ...(userRole === 'receptionist'
     ? [
         {
-          title: 'Inventory',
-          path: '/inventories',
-          icon: <Inventory />,
+          title: 'Today',
+          path: '/today-schedule',
+          icon: <Schedule />,
         },
         {
           title: 'Appointment',
           path: '/appointments',
           icon: <CalendarToday />,
+        },
+        {
+          title: 'Inventory',
+          path: '/inventories',
+          icon: <Inventory />,
         },
         {
           title: 'Service',
