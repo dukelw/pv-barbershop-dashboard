@@ -16,6 +16,7 @@ import { DashboardLayout } from 'src/layouts/dashboard';
 export const DashboardPage = lazy(() => import('src/pages/dashboard'));
 export const BlogPage = lazy(() => import('src/pages/blog'));
 export const ServicePage = lazy(() => import('src/pages/service'));
+export const SchedulePage = lazy(() => import('src/pages/schedule'));
 export const AppointmentPage = lazy(() => import('src/pages/appointment'));
 export const InventoryPage = lazy(() => import('src/pages/inventory'));
 export const UserPage = lazy(() => import('src/pages/user'));
@@ -51,6 +52,14 @@ const receptionistLoader = () => {
   return null;
 };
 
+const staffLoader = () => {
+  const userRole = Cookie.get('user_role');
+  if (userRole !== 'staff') {
+    return redirect('/404');
+  }
+  return null;
+};
+
 const receptionistAndAdminLoader = () => {
   const userRole = Cookie.get('user_role');
   if (userRole !== 'receptionist' && userRole !== 'admin') {
@@ -77,6 +86,7 @@ export const routesSection: RouteObject[] = [
       { path: 'inventories', element: <InventoryPage />, loader: receptionistLoader },
       { path: 'appointments', element: <AppointmentPage />, loader: receptionistLoader },
       { path: 'statistic', element: <BlogPage />, loader: receptionistAndAdminLoader },
+      { path: 'schedule', element: <SchedulePage />, loader: staffLoader },
     ],
   },
   {

@@ -11,6 +11,7 @@ import {
   Inventory,
   Storefront,
   CalendarToday,
+  Schedule,
 } from '@mui/icons-material';
 
 // ----------------------------------------------------------------------
@@ -61,9 +62,9 @@ export const navData: NavItem[] = [
   ...(userRole === 'staff'
     ? [
         {
-          title: 'Staff',
-          path: '/staff',
-          icon: <Person />,
+          title: 'Schedule',
+          path: '/schedule',
+          icon: <Schedule />,
         },
       ]
     : []),
