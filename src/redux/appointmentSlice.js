@@ -1,7 +1,7 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const appointmentSlide = createSlice({
-  name: "appointment",
+  name: 'appointment',
   initialState: {
     find: {
       foundAppointment: null,

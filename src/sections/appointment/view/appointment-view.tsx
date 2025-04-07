@@ -261,7 +261,7 @@ export function AppointmentView() {
                       <TableCell>{appointment?.notes}</TableCell>
                       <TableCell>
                         <img
-                          src={appointment?._id}
+                          src={appointment?.complete_picture}
                           alt={appointment?.complete_picture}
                           width="50"
                           height="50"
@@ -275,9 +275,9 @@ export function AppointmentView() {
                               appointment?.status === 'pending'
                                 ? 'orange'
                                 : appointment?.status === 'confirmed'
-                                  ? 'green'
+                                  ? 'blue'
                                   : appointment?.status === 'completed'
-                                    ? 'blue'
+                                    ? 'green'
                                     : appointment?.status === 'canceled'
                                       ? 'red'
                                       : 'black',
