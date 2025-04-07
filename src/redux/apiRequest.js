@@ -120,6 +120,7 @@ import {
   updateAppointmentStart,
   updateAppointmentSuccess,
 } from './appointmentSlice';
+import { createInventoryFailure, createInventoryStart, createInventorySuccess, deleteInventoryFailure, deleteInventoryStart, deleteInventorySuccess, getAllInventorysFailure, getAllInventorysStart, getAllInventorysSuccess, getInventoryFailure, getInventoryStart, getInventorySuccess, updateInventoryFailure, updateInventoryStart, updateInventorySuccess } from './inventorySlice';
 
 const REACT_APP_BASE_URL = import.meta.env.VITE_REACT_APP_BASE_URL;
 
@@ -819,3 +820,90 @@ export const deleteAppointment = async (accessToken, ID, dispatch) => {
 };
 
 // End appointment
+
+// Start inventory
+
+export const getInventory = async (ID, dispatch) => {
+  dispatch(getInventoryStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}inventory/${ID}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getInventorySuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching inventory:', error);
+    dispatch(getInventoryFailure());
+  }
+};
+
+export const getAllInventories = async (dispatch) => {
+  dispatch(getAllInventorysStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}inventory/all`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getAllInventorysSuccess(res.data));
+    console.log(res);
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(getAllInventorysFailure());
+  }
+};
+
+export const createInventory = async (accessToken, inventory, dispatch, navigate, axiosJWT) => {
+  dispatch(createInventoryStart());
+  try {
+    const res = await axiosJWT.post(`${REACT_APP_BASE_URL}inventory/add`, inventory, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `${accessToken}`,
+      },
+    });
+    dispatch(createInventorySuccess(res.data));
+    return res.data;
+  } catch (error) {
+    dispatch(createInventoryFailure());
+  }
+};
+
+export const updateInventory = async (accessToken, inventory, dispatch, navigate, axiosJWT) => {
+  dispatch(updateInventoryStart());
+  try {
+    const res = await axiosJWT.put(`${REACT_APP_BASE_URL}inventory/${inventory.inventory_id}`, inventory, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `${accessToken}`,
+      },
+    });
+    dispatch(updateInventorySuccess(res.data));
+  } catch (error) {
+    dispatch(updateInventoryFailure());
+  }
+};
+
+export const deleteInventory = async (accessToken, ID, dispatch, axiosJWT) => {
+  dispatch(deleteInventoryStart());
+  try {
+    await axiosJWT.delete(
+      `${REACT_APP_BASE_URL}inventory/${ID}`,
+      {},
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `${accessToken}`,
+        },
+      }
+    );
+    dispatch(deleteInventorySuccess());
+  } catch (error) {
+    dispatch(deleteInventoryFailure());
+    return false;
+  }
+};
+
+// End inventory
