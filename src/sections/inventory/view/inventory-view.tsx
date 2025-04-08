@@ -223,9 +223,43 @@ export function InventoryView() {
     }
   };
   
-  
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [inventoryToDelete, setInventoryToDelete] = useState<any>(null);
+
+  const handleAskDelete = (inventory: any) => {
+    setInventoryToDelete(inventory);
+    setConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!inventoryToDelete) return;
+
+    try {
+      await handleDelete(inventoryToDelete);
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    } finally {
+      setConfirmDeleteOpen(false);
+      setInventoryToDelete(null);
+    }
+  };
+
   return (
     <DashboardContent>
+
+      <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete this inventory item?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Modal for adding new inventory */}
       <Dialog open={openCreateForm} onClose={handleCloseForm}>
         <DialogTitle>Create New Inventory</DialogTitle>
@@ -466,7 +500,7 @@ export function InventoryView() {
                         sx={{ marginRight: '12px', minWidth: '80px' }}
                         variant="contained"
                         color="error" 
-                        onClick={() => handleDelete(inventory)}>Delete</Button>
+                        onClick={() => {handleAskDelete(inventory)}}>Delete</Button>
                       <Button
                         sx={{ marginRight: '12px', minWidth: '80px' }}
                         variant="contained"

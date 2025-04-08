@@ -170,12 +170,45 @@ export function ServiceView() {
     setServices(data);
   };
 
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [inventoryToDelete, setInventoryToDelete] = useState<any>(null);
+
+  const handleAskDelete = (service: any) => {
+    setInventoryToDelete(service);
+    setConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!inventoryToDelete) return;
+
+    try {
+      await handleDelete(inventoryToDelete);
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    } finally {
+      setConfirmDeleteOpen(false);
+      setInventoryToDelete(null);
+    }
+  };
+
   useEffect(() => {
     handleGetAllService();
   }, []);
 
   return (
     <DashboardContent>
+      <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete this service?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
       {/* Modal for adding new service */}
       <Dialog open={openCreateForm} onClose={handleCloseForm}>
         <DialogTitle>Create New Service</DialogTitle>
@@ -391,7 +424,7 @@ export function ServiceView() {
                           sx={{ minWidth: '80px', marginTop: '4px' }}
                           variant="contained"
                           color="error"
-                          onClick={() => handleDelete(service)}
+                          onClick={() => handleAskDelete(service)}
                         >
                           Delete
                         </Button>
