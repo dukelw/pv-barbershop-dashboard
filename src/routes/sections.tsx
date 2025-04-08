@@ -24,6 +24,7 @@ export const PaymentPage = lazy(() => import('src/pages/payment'));
 export const UserPage = lazy(() => import('src/pages/user'));
 export const SignInPage = lazy(() => import('src/pages/sign-in'));
 export const ProductsPage = lazy(() => import('src/pages/products'));
+export const GeneralPage = lazy(() => import('src/pages/general'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const ThankYouPage = lazy(() => import('src/pages/thankyou'));
 
@@ -89,6 +90,7 @@ export const routesSection: RouteObject[] = [
       { path: 'inventories', element: <InventoryPage />, loader: receptionistLoader },
       { path: 'appointments', element: <AppointmentPage />, loader: receptionistLoader },
       { path: 'today-schedule', element: <TodaySchedulePage />, loader: receptionistLoader },
+      { path: 'general', element: <GeneralPage />, loader: receptionistLoader },
       { path: 'statistic', element: <BlogPage />, loader: receptionistAndAdminLoader },
       { path: 'schedule', element: <SchedulePage />, loader: staffLoader },
       { path: 'payment/:id', element: <PaymentPage />, loader: receptionistLoader },

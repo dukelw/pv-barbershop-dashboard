@@ -22,7 +22,13 @@ import {
   findAllBarber,
   updateAppointmentProof,
   uploadImage,
+  updateAppointment,
+  updateAppointmentStatus,
+  deleteAppointment,
+  findAllFreeBarber,
 } from 'src/redux/apiRequest';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 const hours = Array.from({ length: 15 }, (_, i) => `${i + 8}:00`); // 8h -> 22h
 
@@ -30,6 +36,7 @@ export default function Timetable() {
   const accessToken = Cookie.get('access_token');
   const [appointments, setAppointments] = useState<any[]>([]);
   const [barbers, setBarbers] = useState<any[]>([]);
+  const [freeBarbers, setFreeBarbers] = useState<any[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const dispatch = useDispatch();
   const [selectedAppointment, setSelectedAppointment] = useState<any | null>(null);
@@ -47,8 +54,30 @@ export default function Timetable() {
   };
 
   useEffect(() => {
-    handleGetAppointments();
-    handleGetBarbers();
+    const fetchData = async () => {
+      const resApt = await getAllAppointments(dispatch);
+      const appointmentsData = resApt.metadata || [];
+
+      const resBarber = await findAllBarber(dispatch);
+      let barbersData = resBarber.metadata || [];
+
+      const hasUnassigned = appointmentsData.some((apt: any) => !apt.barber || !apt.barber._id);
+      if (hasUnassigned) {
+        barbersData = [
+          ...barbersData,
+          {
+            _id: 'unassigned',
+            user_name: 'Unassigned',
+            user_avatar: 'https://upload.wikimedia.org/wikipedia/commons/9/99/Sample_User_Icon.png',
+          },
+        ];
+      }
+
+      setAppointments(appointmentsData);
+      setBarbers(barbersData);
+    };
+
+    fetchData();
   }, []);
 
   const handleClose = () => {
@@ -67,7 +96,8 @@ export default function Timetable() {
     return todayAppointments.filter((apt) => {
       const start = parseISO(apt.appointment_start);
       const hourStart = start.getHours();
-      return apt.barber?._id === barberId && hourStart === hour;
+      const currentBarberId = apt.barber?._id || 'unassigned';
+      return currentBarberId === barberId && hourStart === hour;
     });
   };
 
@@ -103,21 +133,159 @@ export default function Timetable() {
     },
   ];
 
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [inventoryToDelete, setInventoryToDelete] = useState<any>(null);
+  const [selectedBarber, setSelectedBarber] = useState<any>(null);
+  const [appointmentToUpdate, setAppointmentToUpdate] = useState<any>(null);
+  const [openAssignBarberForm, setAssignBarberForm] = useState(false);
+
+  const handleAskDelete = (inventory: any) => {
+    setInventoryToDelete(inventory);
+    setConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!inventoryToDelete) return;
+
+    try {
+      await handleDelete(inventoryToDelete);
+      handleClose();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    } finally {
+      setConfirmDeleteOpen(false);
+      setInventoryToDelete(null);
+    }
+  };
+
+  const handleGetFreeBarber = async (startTime = '', endTime = '') => {
+    const data = await findAllFreeBarber('', startTime, endTime, dispatch);
+    setFreeBarbers(data.metadata);
+  };
+
+  const handleDelete = async (appointment: any) => {
+    await deleteAppointment(accessToken, appointment._id, dispatch);
+    await handleGetAppointments();
+  };
+
+  const handleAccept = async (appointment: any) => {
+    if (appointment.barber) {
+      await updateAppointmentStatus(accessToken, appointment._id, 'confirmed', dispatch);
+      handleGetAppointments();
+      handleClose();
+    } else {
+      await handleGetFreeBarber(appointment.appointment_start, appointment.appointment_end);
+      setAppointmentToUpdate(appointment._id);
+      setAssignBarberForm(true);
+    }
+  };
+
+  const handleComplete = async (appointment: any) => {
+    await updateAppointmentStatus(accessToken, appointment._id, 'completed', dispatch);
+    handleGetAppointments();
+    window.open(`/payment/${appointment._id}`);
+  };
+
+  const handleCloseAssignBarberForm = () => {
+    setAssignBarberForm(false);
+  };
+
+  const handleAssignBarber = async () => {
+    if (appointmentToUpdate && selectedBarber) {
+      const updatedAppointment = {
+        _id: appointmentToUpdate,
+        barber: selectedBarber,
+      };
+
+      await updateAppointment(accessToken, updatedAppointment, dispatch);
+      await updateAppointmentStatus(accessToken, updatedAppointment._id, 'confirmed', dispatch);
+      await handleGetAppointments();
+      handleCloseAssignBarberForm();
+      handleClose();
+    }
+  };
+
+  const handleOpenEditForm = (appointment: any) => {
+    window.location.href = `${import.meta.env.VITE_USER_BASE_URL}update-appointment/${appointment._id}`;
+  };
+
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+      <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>Are you sure you want to delete this appointment?</DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={openAssignBarberForm} onClose={handleCloseAssignBarberForm}>
+        <DialogTitle>Assign Barber</DialogTitle>
+        <DialogContent>
+          <Typography>Select a barber to assign to the appointment</Typography>
+          <Box sx={{ mt: 2 }}>
+            {freeBarbers.map((barber) => (
+              <Card key={barber._id} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <img
+                  src={barber.user_avatar}
+                  alt={barber.user_name}
+                  width="40"
+                  height="40"
+                  style={{ borderRadius: '50%', marginRight: '10px' }}
+                />
+                <Typography>{barber.user_name}</Typography>
+                <Button
+                  sx={{ marginLeft: 'auto' }}
+                  variant="outlined"
+                  onClick={() => setSelectedBarber(barber)}
+                >
+                  {selectedBarber?._id === barber._id ? 'Selected' : 'Select'}
+                </Button>
+              </Card>
+            ))}
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ marginRight: '16px' }}>
+          <Button onClick={handleCloseAssignBarberForm}>Cancel</Button>
+          <Button onClick={handleAssignBarber} variant="contained" color="primary">
+            Assign
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Button
           onClick={() => setCurrentDate((prev) => new Date(prev.setDate(prev.getDate() - 1)))}
         >
           Yesterday
         </Button>
-        <Typography variant="h4">Schedule of {format(currentDate, 'dd/MM/yyyy')}</Typography>
+
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DatePicker
+            label="Choose a day"
+            value={currentDate}
+            onChange={(newValue) => {
+              if (newValue) setCurrentDate(newValue);
+            }}
+            slotProps={{ textField: { size: 'small' } }}
+            sx={{
+              minWidth: '600px',
+            }}
+          />
+        </LocalizationProvider>
+
         <Button
           onClick={() => setCurrentDate((prev) => new Date(prev.setDate(prev.getDate() + 1)))}
         >
           Tomorrow
         </Button>
       </Box>
+
+      <Typography variant="h4" align="center" sx={{ mb: 2 }}>
+        Schedule of {format(currentDate, 'dd/MM/yyyy')}
+      </Typography>
+
       <Box sx={{ width: '100%', display: 'flex', justifyContent: 'right', mb: 2, mr: 4 }}>
         {NOTE.map((note, index) => (
           <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: '12px' }}>
@@ -145,7 +313,7 @@ export default function Timetable() {
         <Box sx={{ borderBottom: '1px solid #ccc', bgcolor: '#f0f0f0' }} />
         {barbers.map((barber) => (
           <Box
-            key={barber?._id}
+            key={barber._id}
             sx={{
               borderLeft: '1px solid #ccc',
               borderBottom: '1px solid #ccc',
@@ -160,11 +328,11 @@ export default function Timetable() {
             }}
           >
             <img
-              src={barber?.user_avatar}
-              alt={barber?.user_name}
+              src={barber.user_avatar}
+              alt={barber.user_name}
               style={{ width: 24, height: 24, borderRadius: '50%', marginRight: 8 }}
             />
-            {barber?.user_name}
+            {barber.user_name}
           </Box>
         ))}
 
@@ -190,7 +358,7 @@ export default function Timetable() {
               </Box>
 
               {barbers.map((barber, index) => {
-                const barberAppointments = getAppointmentsByBarber(barber?._id, hour);
+                const barberAppointments = getAppointmentsByBarber(barber._id, hour);
 
                 return (
                   <Box
@@ -257,6 +425,7 @@ export default function Timetable() {
           );
         })}
       </Box>
+      {/* Detail form */}
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Schedule detail</DialogTitle>
         <DialogContent>
@@ -298,6 +467,10 @@ export default function Timetable() {
             <strong>Note:</strong> {selectedAppointment?.notes || 'Không có'}
           </Typography>
 
+          <Typography variant="body2" gutterBottom>
+            <strong>Status:</strong> {selectedAppointment?.status || 'Không có'}
+          </Typography>
+
           {(selectedAppointment?.complete_picture || imageFile) && (
             <Box sx={{ textAlign: 'center', mb: 2 }}>
               <img
@@ -330,10 +503,57 @@ export default function Timetable() {
         </DialogContent>
         <DialogActions>
           {selectedAppointment?.status !== 'completed' && (
-            <Button onClick={handleUpdateProof} variant="contained" color="primary">
+            <Button
+              onClick={handleUpdateProof}
+              variant="contained"
+              color="primary"
+              disabled={selectedAppointment?.status !== 'confirmed'}
+            >
               Upload proof
             </Button>
           )}
+          <Button
+            sx={{ minWidth: '82px', marginTop: '4px' }}
+            variant="contained"
+            color="warning"
+            onClick={() => handleOpenEditForm(selectedAppointment)}
+            disabled={selectedAppointment?.status === 'completed' ? true : false}
+          >
+            Edit
+          </Button>
+          <Button
+            sx={{ minWidth: '82px', marginTop: '4px' }}
+            variant="contained"
+            color="secondary"
+            onClick={() => handleAccept(selectedAppointment)}
+            disabled={
+              selectedAppointment?.status === 'confirmed' ||
+              selectedAppointment?.status === 'completed'
+            }
+          >
+            Accept
+          </Button>
+
+          <Button
+            sx={{ minWidth: '82px', marginTop: '4px' }}
+            variant="contained"
+            color="success"
+            onClick={() => handleComplete(selectedAppointment)}
+            disabled={
+              selectedAppointment?.status === 'completed' || !selectedAppointment?.complete_picture
+            }
+          >
+            Done
+          </Button>
+          <Button
+            sx={{ minWidth: '82px', marginTop: '4px' }}
+            variant="contained"
+            color="error"
+            onClick={() => handleAskDelete(selectedAppointment)}
+            disabled={selectedAppointment?.status === 'completed' ? true : false}
+          >
+            Delete
+          </Button>
           <Button onClick={handleClose}>Close</Button>
         </DialogActions>
       </Dialog>

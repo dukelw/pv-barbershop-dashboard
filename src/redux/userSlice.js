@@ -1,7 +1,7 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const userSlide = createSlice({
-  name: "user",
+  name: 'user',
   initialState: {
     signin: {
       currentUser: null,
@@ -23,6 +23,11 @@ const userSlide = createSlice({
       error: false,
     },
     findAll: {
+      foundUsers: null,
+      isFetching: false,
+      error: false,
+    },
+    findAllFree: {
       foundUsers: null,
       isFetching: false,
       error: false,
@@ -103,6 +108,18 @@ const userSlide = createSlice({
       state.findAll.isFetching = false;
       state.findAll.error = true;
     },
+    findAllFreeBarberStart: (state) => {
+      state.findAllFree.isFetching = true;
+    },
+    findAllFreeBarberSuccess: (state, action) => {
+      state.findAllFree.isFetching = false;
+      state.findAllFree.foundUsers = action.payload;
+      state.findAllFree.error = false;
+    },
+    findAllFreeBarberFailure: (state) => {
+      state.findAllFree.isFetching = false;
+      state.findAllFree.error = true;
+    },
     updateUserStart: (state) => {
       state.update.isFetching = true;
     },
@@ -156,6 +173,9 @@ export const {
   findAllUsersStart,
   findAllUsersSuccess,
   findAllUsersFailure,
+  findAllFreeBarberStart,
+  findAllFreeBarberSuccess,
+  findAllFreeBarberFailure,
   updateUserStart,
   updateUserSuccess,
   updateUserFailure,
