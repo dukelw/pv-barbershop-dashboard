@@ -75,6 +75,7 @@ export function AppointmentView() {
   const handleComplete = async (appointment: any) => {
     await updateAppointmentStatus(accessToken, appointment._id, 'completed', dispatch);
     handleGetAllAppointment();
+    window.open(`/payment/${appointment._id}`);
   };
 
   const handleGetAllAppointment = async () => {
@@ -303,6 +304,7 @@ export function AppointmentView() {
                           variant="contained"
                           color="secondary"
                           onClick={() => handleAccept(appointment)}
+                          disabled={appointment.status === 'confirmed'}
                         >
                           Accept
                         </Button>
@@ -312,6 +314,9 @@ export function AppointmentView() {
                           variant="contained"
                           color="success"
                           onClick={() => handleComplete(appointment)}
+                          disabled={
+                            appointment.status === 'completed' || !appointment.complete_picture
+                          }
                         >
                           Done
                         </Button>
