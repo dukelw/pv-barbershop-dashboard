@@ -29,6 +29,9 @@ import {
   findAllUsersStart,
   findAllUsersSuccess,
   findAllUsersFailure,
+  findAllFreeBarberStart,
+  findAllFreeBarberSuccess,
+  findAllFreeBarberFailure,
 } from './userSlice';
 import {
   uploadAudioFailure,
@@ -320,7 +323,7 @@ export const findAllBarber = async (dispatch) => {
 };
 
 export const findAllFreeBarber = async (keySearch = '', startTime, endTime, dispatch) => {
-  dispatch(findAllUsersStart());
+  dispatch(findAllFreeBarberStart());
   try {
     let link = 'user/find-barber?';
     const params = [];
@@ -332,10 +335,10 @@ export const findAllFreeBarber = async (keySearch = '', startTime, endTime, disp
     link += params.join('&');
 
     const res = await axios.get(`${REACT_APP_BASE_URL}${link}`);
-    dispatch(findAllUsersSuccess(res.data));
+    dispatch(findAllFreeBarberSuccess(res.data));
     return res.data;
   } catch (error) {
-    dispatch(findAllUsersFailure());
+    dispatch(findAllFreeBarberFailure());
   }
 };
 
