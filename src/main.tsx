@@ -1,3 +1,4 @@
+/* eslint-disable perfectionist/sort-imports */
 import Cookie from 'js-cookie';
 import { StrictMode } from 'react';
 import { Provider } from 'react-redux';
@@ -43,11 +44,9 @@ const router = createBrowserRouter([
 const root = createRoot(document.getElementById('root')!);
 
 root.render(
-  <StrictMode>
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <RouterProvider router={router} />
-      </PersistGate>
-    </Provider>
-  </StrictMode>
+  <Provider store={store}>
+    <PersistGate loading={null} persistor={persistor}>
+      <RouterProvider router={router} />
+    </PersistGate>
+  </Provider>
 );

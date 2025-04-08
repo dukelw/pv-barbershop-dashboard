@@ -140,6 +140,20 @@ import {
   updateInventoryStart,
   updateInventorySuccess,
 } from './inventorySlice';
+import {
+  createInvoiceFailure,
+  createInvoiceStart,
+  createInvoiceSuccess,
+  getAllInvoicesFailure,
+  getAllInvoicesStart,
+  getAllInvoicesSuccess,
+  getInvoiceFailure,
+  getInvoiceStart,
+  getInvoiceSuccess,
+  updateInvoiceFailure,
+  updateInvoiceStart,
+  updateInvoiceSuccess,
+} from './invoiceSlice';
 
 const REACT_APP_BASE_URL = import.meta.env.VITE_REACT_APP_BASE_URL;
 
@@ -745,10 +759,10 @@ export const deleteService = async (accessToken, ID, dispatch, axiosJWT) => {
 
 // Start appointment
 
-export const getAppointment = async (ID, dispatch) => {
+export const getAppointment = async (ID, dispatch, populate) => {
   dispatch(getServiceStart());
   try {
-    const res = await axios.get(`${REACT_APP_BASE_URL}appointment/${ID}`, {
+    const res = await axios.get(`${REACT_APP_BASE_URL}appointment/${ID}?populate=${populate}`, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -760,7 +774,6 @@ export const getAppointment = async (ID, dispatch) => {
     dispatch(getServiceFailure());
   }
 };
-
 export const getAllAppointments = async (dispatch) => {
   dispatch(getAllServicesStart());
   try {
@@ -990,3 +1003,70 @@ export const deleteInventory = async (accessToken, ID, dispatch, axiosJWT) => {
 };
 
 // End inventory
+
+// Start invoice
+
+export const getInvoice = async (ID, dispatch) => {
+  dispatch(getInvoiceStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}invoice/${ID}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getInvoiceSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching inventory:', error);
+    dispatch(getInvoiceFailure());
+  }
+};
+
+export const getAllInvoices = async (dispatch) => {
+  dispatch(getAllInvoicesStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}invoice/all`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getAllInvoicesSuccess(res.data));
+    console.log(res);
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(getAllInvoicesFailure());
+  }
+};
+
+export const createInvoice = async (accessToken, invoice, dispatch) => {
+  dispatch(createInvoiceStart());
+  try {
+    const res = await axios.post(`${REACT_APP_BASE_URL}invoice/create`, invoice, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `${accessToken}`,
+      },
+    });
+    dispatch(createInvoiceSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    dispatch(createInvoiceFailure());
+  }
+};
+
+export const updateInvoice = async (accessToken, invoice, dispatch) => {
+  dispatch(updateInvoiceStart());
+  try {
+    const res = await axios.put(`${REACT_APP_BASE_URL}invoice/${invoice.invoice_id}`, invoice, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `${accessToken}`,
+      },
+    });
+    dispatch(updateInvoiceSuccess(res.data));
+  } catch (error) {
+    dispatch(updateInvoiceFailure());
+  }
+};
+
+// End invoice

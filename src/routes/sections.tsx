@@ -20,10 +20,12 @@ export const SchedulePage = lazy(() => import('src/pages/schedule'));
 export const AppointmentPage = lazy(() => import('src/pages/appointment'));
 export const InventoryPage = lazy(() => import('src/pages/inventory'));
 export const TodaySchedulePage = lazy(() => import('src/pages/today'));
+export const PaymentPage = lazy(() => import('src/pages/payment'));
 export const UserPage = lazy(() => import('src/pages/user'));
 export const SignInPage = lazy(() => import('src/pages/sign-in'));
 export const ProductsPage = lazy(() => import('src/pages/products'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
+export const ThankYouPage = lazy(() => import('src/pages/thankyou'));
 
 const renderFallback = () => (
   <Box
@@ -89,6 +91,7 @@ export const routesSection: RouteObject[] = [
       { path: 'today-schedule', element: <TodaySchedulePage />, loader: receptionistLoader },
       { path: 'statistic', element: <BlogPage />, loader: receptionistAndAdminLoader },
       { path: 'schedule', element: <SchedulePage />, loader: staffLoader },
+      { path: 'payment/:id', element: <PaymentPage />, loader: receptionistLoader },
     ],
   },
   {
@@ -102,6 +105,10 @@ export const routesSection: RouteObject[] = [
   {
     path: '404',
     element: <Page404 />,
+  },
+  {
+    path: '/thankyou/:id/:amount/:method',
+    element: <ThankYouPage />,
   },
   { path: '*', element: <Page404 /> },
 ];
