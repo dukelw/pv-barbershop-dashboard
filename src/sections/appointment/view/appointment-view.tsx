@@ -55,8 +55,7 @@ export function AppointmentView() {
     setBarbers(data.metadata);
   };
 
-  const handleDelete = async (appointment: any, index: number) => {
-    setAppointments((prevAppointments) => prevAppointments.filter((_, i) => i !== index));
+  const handleDelete = async (appointment: any) => {
     await deleteAppointment(accessToken, appointment._id, dispatch);
     await handleGetAllAppointment();
   };
@@ -110,12 +109,45 @@ export function AppointmentView() {
     window.location.href = `${import.meta.env.VITE_USER_BASE_URL}update-appointment/${appointment._id}`;
   };
 
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [inventoryToDelete, setInventoryToDelete] = useState<any>(null);
+
+  const handleAskDelete = (inventory: any) => {
+    setInventoryToDelete(inventory);
+    setConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!inventoryToDelete) return;
+
+    try {
+      await handleDelete(inventoryToDelete);
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    } finally {
+      setConfirmDeleteOpen(false);
+      setInventoryToDelete(null);
+    }
+  };
+
   useEffect(() => {
     handleGetAllAppointment();
   }, []);
 
   return (
     <DashboardContent>
+      <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete this appointment?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Dialog open={openAssignBarberForm} onClose={handleCloseAssignBarberForm}>
         <DialogTitle>Assign Barber</DialogTitle>
         <DialogContent>
@@ -324,7 +356,8 @@ export function AppointmentView() {
                           sx={{ minWidth: '82px', marginTop: '4px' }}
                           variant="contained"
                           color="error"
-                          onClick={() => handleDelete(appointment, index)}
+                          onClick={() => handleAskDelete(appointment)}
+                          disabled={appointment.status === "completed" ? true : false}
                         >
                           Delete
                         </Button>

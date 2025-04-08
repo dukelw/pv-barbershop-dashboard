@@ -59,6 +59,8 @@ type ApplyFilterProps = {
 };
 
 export function applyFilter({ inputData, comparator, filterName }: ApplyFilterProps) {
+  inputData = Array.isArray(inputData) ? inputData : [];
+  
   const stabilizedThis = inputData.map((el, index) => [el, index] as const);
 
   stabilizedThis.sort((a, b) => {
@@ -71,7 +73,7 @@ export function applyFilter({ inputData, comparator, filterName }: ApplyFilterPr
 
   if (filterName) {
     inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
+      (user) => user.user_name.toLowerCase().indexOf(filterName.toLowerCase()) !== -1
     );
   }
 

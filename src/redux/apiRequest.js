@@ -204,6 +204,19 @@ export const signup = async (user, dispatch, navigate) => {
   }
 };
 
+export const createAccount = async (user, dispatch) => {
+  dispatch(userSignupStart());
+  try {
+    const res = await axios.post(`${REACT_APP_BASE_URL}user/create-account`, user);
+    const refreshToken = res.data?.metadata?.metadata?.tokens?.refreshToken;
+    localStorage.setItem('refreshToken', refreshToken);
+    dispatch(userSignupSuccess());
+  } catch (error) {
+    dispatch(userSignupFailure());
+    return false;
+  }
+};
+
 export const logout = async (accessToken, userID, dispatch, navigate, axiosJWT) => {
   dispatch(userLogoutStart());
   try {
@@ -329,7 +342,7 @@ export const findAllFreeBarber = async (keySearch = '', startTime, endTime, disp
 export const banUser = async (accessToken, userID, deleteID, dispatch, axiosJWT) => {
   dispatch(deleteUserStart());
   try {
-    const res = await axiosJWT.delete(`${REACT_APP_BASE_URL}user/${deleteID}`, {
+    const res = await axiosJWT.delete(`${REACT_APP_BASE_URL}user/${deleteID}/${userID}`, {
       headers: {
         'Content-Type': 'application/json',
         authorization: `${accessToken}`,
