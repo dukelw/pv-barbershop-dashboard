@@ -12,7 +12,8 @@ import {
   Storefront,
   CalendarToday,
   Schedule,
-  ReceiptLong ,
+  ReceiptLong,
+  RateReview,
 } from '@mui/icons-material';
 
 // ----------------------------------------------------------------------
@@ -27,11 +28,15 @@ export type NavItem = {
 };
 
 export const navData: NavItem[] = [
-  {
-    title: 'Dashboard',
-    path: '/',
-    icon: <Dashboard />,
-  },
+  ...(userRole === 'receptionist' || userRole === 'admin' 
+    ? [
+        {
+          title: 'Dashboard',
+          path: '/',
+          icon: <Dashboard />,
+        },
+      ] 
+    : []),
   ...(userRole === 'receptionist'
     ? [
         {
@@ -69,15 +74,29 @@ export const navData: NavItem[] = [
   ...(userRole === 'staff'
     ? [
         {
+          title: 'Dashboard',
+          path: '/baber-dashboard',
+          icon: <Dashboard />,
+        },
+        {
           title: 'Schedule',
           path: '/schedule',
           icon: <Schedule />,
         },
+        {
+          title: 'Review',
+          path: '/review',
+          icon: <RateReview />,
+        },
       ]
     : []),
-  {
-    title: 'User',
-    path: '/user',
-    icon: <Person />,
-  },
+  ...(userRole === 'receptionist' || userRole === 'admin' 
+    ? [
+        {
+          title: 'User',
+          path: '/user',
+          icon: <Person />,
+        }
+      ] 
+    : []),
 ];
