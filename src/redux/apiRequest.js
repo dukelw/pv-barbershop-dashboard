@@ -157,6 +157,40 @@ import {
   updateInvoiceStart,
   updateInvoiceSuccess,
 } from './invoiceSlice';
+import {
+  createReviewFailure,
+  createReviewStart,
+  createReviewSuccess,
+  getAllReviewsFailure,
+  getAllReviewsStart,
+  getAllReviewsSuccess,
+  getReviewFailure,
+  getReviewStart,
+  getReviewSuccess,
+} from './reviewSlice';
+import {
+  getBarberIncomeFailure,
+  getBarberIncomeStart,
+  getBarberIncomeSuccess,
+  getBarberRatingFailure,
+  getBarberRatingStart,
+  getBarberRatingSuccess,
+  getBarbersIncomeFailure,
+  getBarbersIncomeStart,
+  getBarbersIncomeSuccess,
+  getBarbersRatingFailure,
+  getBarbersRatingStart,
+  getBarbersRatingSuccess,
+  getSystemIncomeFailure,
+  getSystemIncomeInDurationFailure,
+  getSystemIncomeInDurationStart,
+  getSystemIncomeInDurationSuccess,
+  getSystemIncomeInMonthFailure,
+  getSystemIncomeInMonthStart,
+  getSystemIncomeInMonthSuccess,
+  getSystemIncomeStart,
+  getSystemIncomeSuccess,
+} from './statisticSlice';
 
 const REACT_APP_BASE_URL = import.meta.env.VITE_REACT_APP_BASE_URL;
 
@@ -1086,3 +1120,199 @@ export const updateInvoice = async (accessToken, invoice, dispatch) => {
 };
 
 // End invoice
+
+// Start review
+
+export const getReview = async (ID, dispatch) => {
+  dispatch(getReviewStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}review/${ID}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getReviewSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching inventory:', error);
+    dispatch(getReviewFailure());
+  }
+};
+
+export const getAllReviews = async (dispatch) => {
+  dispatch(getAllReviewsStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}review}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getAllReviewsSuccess(res.data));
+    console.log(res);
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(getAllReviewsFailure());
+  }
+};
+
+export const createReview = async (accessToken, review, dispatch) => {
+  dispatch(createReviewStart());
+  try {
+    const res = await axios.post(`${REACT_APP_BASE_URL}review/create`, review, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `${accessToken}`,
+      },
+    });
+    dispatch(createReviewSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    dispatch(createReviewFailure());
+  }
+};
+
+// End review
+
+// Start statistic
+
+export const getIncomeOfSystemThisMonth = async (dispatch) => {
+  dispatch(getSystemIncomeInMonthStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}statistic/system/income/month`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getSystemIncomeInMonthSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching statistic:', error);
+    dispatch(getSystemIncomeInMonthFailure());
+  }
+};
+
+export const getIncomeOfSystemInDuration = async (start, end, dispatch) => {
+  dispatch(getSystemIncomeInDurationStart());
+  try {
+    // Example: statistic/system/income?start=2025-04-01&end=2025-05-01
+    const res = await axios.get(
+      `${REACT_APP_BASE_URL}statistic/system/income?start=${start}&end=${end}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    dispatch(getSystemIncomeInDurationSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching statistic:', error);
+    dispatch(getSystemIncomeInDurationFailure());
+  }
+};
+
+export const getIncomeOfSystemInYear = async (year, dispatch) => {
+  dispatch(getSystemIncomeStart());
+  try {
+    // Example: statistic/system/income/year?year=2025
+    const res = await axios.get(`${REACT_APP_BASE_URL}statistic/system/income/year?year=${year}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getSystemIncomeSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching statistic:', error);
+    dispatch(getSystemIncomeFailure());
+  }
+};
+
+export const getIncomeOfBarberInYear = async (barberID, year, dispatch) => {
+  dispatch(getBarberIncomeStart());
+  try {
+    // Example: statistic/barber/67f3e541c64356388d2db8e3/income/year?year=2025
+    const res = await axios.get(
+      `${REACT_APP_BASE_URL}statistic/barber/${barberID}/income/year?year=${year}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    dispatch(getBarberIncomeSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching statistic:', error);
+    dispatch(getBarberIncomeFailure());
+  }
+};
+
+export const getIncomeOfBarberInMonth = async (barberID, dispatch) => {
+  dispatch(getBarberIncomeStart());
+  try {
+    // Example: statistic/barber/67f3e541c64356388d2db8e3/income/month
+    const res = await axios.get(`${REACT_APP_BASE_URL}statistic/barber/${barberID}/income/month`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getBarberIncomeSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching statistic:', error);
+    dispatch(getBarberIncomeFailure());
+  }
+};
+
+export const getIncomeOfBarbersInMonth = async (dispatch) => {
+  dispatch(getBarbersIncomeStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}statistic/barbers/income/month`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getBarbersIncomeSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching statistic:', error);
+    dispatch(getBarbersIncomeFailure());
+  }
+};
+
+export const getRatingOfBarber = async (barberID, dispatch) => {
+  dispatch(getBarberRatingStart());
+  try {
+    // Example: statistic/barber/67eeaa265782c6cb88812688/rating
+    const res = await axios.get(`${REACT_APP_BASE_URL}statistic/barber/${barberID}/rating`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getBarberRatingSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching statistic:', error);
+    dispatch(getBarberRatingFailure());
+  }
+};
+
+export const getRatingsOfBarber = async (dispatch) => {
+  dispatch(getBarbersRatingStart());
+  try {
+    // Example: statistic/barbers/rating
+    const res = await axios.get(`${REACT_APP_BASE_URL}statistic/barbers/rating`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getBarbersRatingSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching statistic:', error);
+    dispatch(getBarbersRatingFailure());
+  }
+};
+
+// End statistic
