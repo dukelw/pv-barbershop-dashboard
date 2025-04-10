@@ -12,6 +12,7 @@ import {
   Storefront,
   CalendarToday,
   Schedule,
+  ReceiptLong ,
 } from '@mui/icons-material';
 
 // ----------------------------------------------------------------------
@@ -31,15 +32,6 @@ export const navData: NavItem[] = [
     path: '/',
     icon: <Dashboard />,
   },
-  ...(userRole === 'admin'
-    ? [
-        {
-          title: 'Admin',
-          path: '/admin',
-          icon: <AdminPanelSettings />,
-        },
-      ]
-    : []),
   ...(userRole === 'receptionist'
     ? [
         {
@@ -67,6 +59,11 @@ export const navData: NavItem[] = [
           path: '/services',
           icon: <ShoppingCart />,
         },
+        {
+          title: 'Invoice',
+          path: '/invoices',
+          icon: <ReceiptLong />,
+        },
       ]
     : []),
   ...(userRole === 'staff'
@@ -82,10 +79,5 @@ export const navData: NavItem[] = [
     title: 'User',
     path: '/user',
     icon: <Person />,
-  },
-  {
-    title: 'Blog',
-    path: '/blog',
-    icon: <Article />,
   },
 ];

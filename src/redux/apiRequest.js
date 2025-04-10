@@ -1076,10 +1076,10 @@ export const getInvoice = async (ID, dispatch) => {
   }
 };
 
-export const getAllInvoices = async (dispatch) => {
+export const getAllInvoices = async (populate = true, dispatch) => {
   dispatch(getAllInvoicesStart());
   try {
-    const res = await axios.get(`${REACT_APP_BASE_URL}invoice/all`, {
+    const res = await axios.get(`${REACT_APP_BASE_URL}invoice/?populate=${populate}`, {
       headers: {
         'Content-Type': 'application/json',
       },

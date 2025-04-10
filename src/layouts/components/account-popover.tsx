@@ -2,8 +2,8 @@ import type { IconButtonProps } from '@mui/material/IconButton';
 
 import Cookies from 'js-cookie';
 import { useState, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { Link, redirect, useNavigate } from 'react-router-dom'
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -21,6 +21,7 @@ import { useRouter, usePathname } from 'src/routes/hooks';
 
 export type AccountPopoverProps = IconButtonProps & {
   data?: {
+    new?: boolean;
     label: string;
     href: string;
     icon?: React.ReactNode;
@@ -137,7 +138,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
             <MenuItem
               key={option.label}
               selected={option.href === pathname}
-              onClick={() => handleClickItem(option.href)}
+              onClick={() => option.new? window.open(option.href): handleClickItem(option.href)}
             >
               {option.icon}
               {option.label}
