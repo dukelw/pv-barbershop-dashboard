@@ -181,6 +181,9 @@ import {
   getBarbersRatingFailure,
   getBarbersRatingStart,
   getBarbersRatingSuccess,
+  getSystemAppointmentFailure,
+  getSystemAppointmentStart,
+  getSystemAppointmentSuccess,
   getSystemIncomeFailure,
   getSystemIncomeInDurationFailure,
   getSystemIncomeInDurationStart,
@@ -824,6 +827,7 @@ export const getAppointment = async (ID, dispatch, populate) => {
     dispatch(getServiceFailure());
   }
 };
+
 export const getAllAppointments = async (dispatch) => {
   dispatch(getAllServicesStart());
   try {
@@ -1142,7 +1146,7 @@ export const getReview = async (ID, dispatch) => {
 export const getAllReviews = async (dispatch) => {
   dispatch(getAllReviewsStart());
   try {
-    const res = await axios.get(`${REACT_APP_BASE_URL}review}`, {
+    const res = await axios.get(`${REACT_APP_BASE_URL}review`, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -1245,6 +1249,26 @@ export const getIncomeOfBarberInYear = async (barberID, year, dispatch) => {
   } catch (error) {
     console.error('Error fetching statistic:', error);
     dispatch(getBarberIncomeFailure());
+  }
+};
+
+export const getAppointmentInYear = async (year, dispatch) => {
+  dispatch(getSystemAppointmentStart());
+  try {
+    // Example: statistic/system/appointment/year?year=2025
+    const res = await axios.get(
+      `${REACT_APP_BASE_URL}statistic/system/appointment/year?year=${year}`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    dispatch(getSystemAppointmentSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching statistic:', error);
+    dispatch(getSystemAppointmentFailure());
   }
 };
 

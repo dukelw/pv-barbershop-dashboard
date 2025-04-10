@@ -1,7 +1,7 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const statisticSlice = createSlice({
-  name: "statistic",
+  name: 'statistic',
   initialState: {
     getBarberRating: {
       rating: null,
@@ -35,6 +35,11 @@ const statisticSlice = createSlice({
     },
     getSystemIncome: {
       income: null,
+      isFetching: false,
+      error: false,
+    },
+    getSystemAppointment: {
+      appointment: null,
       isFetching: false,
       error: false,
     },
@@ -137,6 +142,20 @@ const statisticSlice = createSlice({
       state.getSystemIncome.isFetching = false;
       state.getSystemIncome.error = true;
     },
+
+    // getSystemAppointment
+    getSystemAppointmentStart: (state) => {
+      state.getSystemAppointment.isFetching = true;
+    },
+    getSystemAppointmentSuccess: (state, action) => {
+      state.getSystemAppointment.isFetching = false;
+      state.getSystemAppointment.appointment = action.payload;
+      state.getSystemAppointment.error = false;
+    },
+    getSystemAppointmentFailure: (state) => {
+      state.getSystemAppointment.isFetching = false;
+      state.getSystemAppointment.error = true;
+    },
   },
 });
 
@@ -162,6 +181,9 @@ export const {
   getSystemIncomeStart,
   getSystemIncomeSuccess,
   getSystemIncomeFailure,
+  getSystemAppointmentStart,
+  getSystemAppointmentSuccess,
+  getSystemAppointmentFailure,
 } = statisticSlice.actions;
 
 export default statisticSlice.reducer;

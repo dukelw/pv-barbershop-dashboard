@@ -1,22 +1,99 @@
+/* eslint-disable perfectionist/sort-imports */
 import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
 
 import { DashboardContent } from 'src/layouts/dashboard';
-import { _posts, _tasks, _traffic, _timeline } from 'src/_mock';
-
-import { AnalyticsNews } from '../analytics-news';
-import { AnalyticsTasks } from '../analytics-tasks';
 import { AnalyticsCurrentVisits } from '../analytics-current-visits';
-import { AnalyticsOrderTimeline } from '../analytics-order-timeline';
 import { AnalyticsWebsiteVisits } from '../analytics-website-visits';
 import { AnalyticsWidgetSummary } from '../analytics-widget-summary';
-import { AnalyticsTrafficBySite } from '../analytics-traffic-by-site';
-import { AnalyticsCurrentSubject } from '../analytics-current-subject';
 import { AnalyticsConversionRates } from '../analytics-conversion-rates';
+import { useEffect, useState } from 'react';
+import {
+  findAllBarber,
+  getAllReviews,
+  getAppointmentInYear,
+  getIncomeOfBarbersInMonth,
+  getIncomeOfSystemInYear,
+  getRatingsOfBarber,
+} from 'src/redux/apiRequest';
+import { useDispatch } from 'react-redux';
+import { Button, MenuItem, TextField } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
 export function OverviewAnalyticsView() {
+  const [barberIncome, setBarberIncome] = useState([]);
+  const [ratingData, setRatingData] = useState([]);
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [systemRangeAppointment, setSystemRangeAppointment] = useState<any[]>([]);
+  const [systemRangeIncome, setSystemRangeIncome] = useState<number[]>([]);
+  const [monthIncome, setMonthIncome] = useState(0);
+  const [monthAppointment, setMonthAppointment] = useState(0);
+  const [monthReview, setMonthReview] = useState(0);
+  const [monthBarber, setMonthBarber] = useState(0);
+
+  const fetchBarberIncome = async () => {
+    const res = await getIncomeOfBarbersInMonth(dispatch);
+    if (res?.metadata) setBarberIncome(res.metadata);
+  };
+
+  const dispatch = useDispatch();
+  const [yearIncome, setYearIncome] = useState<number[]>([]);
+
+  const fetchData = async () => {
+    const currentYear = new Date().getFullYear();
+    const data = await getIncomeOfSystemInYear(currentYear, dispatch);
+    if (data?.metadata) {
+      const incomeData = data.metadata.map((item: any) => item.totalIncome);
+      setYearIncome(incomeData);
+    }
+  };
+
+  const fetchRatings = async () => {
+    const res = await getRatingsOfBarber(dispatch);
+    if (res?.metadata) setRatingData(res.metadata);
+  };
+
+  const topBarber = barberIncome.reduce(
+    (prev: any, curr: any) => (curr.totalIncome > prev.totalIncome ? curr : prev),
+    { totalIncome: 0 }
+  );
+
+  const handleFetchChartData = async () => {
+    const systemRes = await getIncomeOfSystemInYear(year, dispatch);
+
+    if (systemRes?.metadata) {
+      const income = systemRes.metadata.map((item: any) => item.totalIncome);
+      setSystemRangeIncome(income);
+
+      const totalIncome = income.reduce((sum: any, val: any) => sum + val, 0);
+      setMonthIncome(totalIncome);
+    }
+
+    const appointmentRes = await getAppointmentInYear(year, dispatch);
+
+    if (appointmentRes?.metadata) {
+      const appointmentCounts = appointmentRes.metadata.map((item: any) => item.count);
+      setSystemRangeAppointment(appointmentCounts);
+
+      const totalAppointments = appointmentCounts.reduce((sum: any, val: any) => sum + val, 0);
+      setMonthAppointment(totalAppointments);
+    }
+
+    const reviews = await getAllReviews(dispatch);
+    setMonthReview(reviews?.length);
+
+    const barbers = await findAllBarber(dispatch);
+    setMonthBarber(barbers?.metadata.length);
+  };
+
+  useEffect(() => {
+    fetchData();
+    fetchBarberIncome();
+    fetchRatings();
+    handleFetchChartData();
+  }, []);
   return (
     <DashboardContent maxWidth="xl">
       <Typography variant="h4" sx={{ mb: { xs: 3, md: 5 } }}>
@@ -26,129 +103,190 @@ export function OverviewAnalyticsView() {
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <AnalyticsWidgetSummary
-            title="Weekly sales"
-            percent={2.6}
-            total={714000}
-            icon={<img alt="Weekly sales" src="/assets/icons/glass/ic-glass-bag.svg" />}
-            chart={{
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [22, 8, 35, 50, 82, 84, 77, 12],
-            }}
+            title="Income"
+            total={monthIncome}
+            icon={<img alt="Income" src="/assets/icons/glass/ic-glass-bag.svg" />}
           />
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <AnalyticsWidgetSummary
-            title="New users"
-            percent={-0.1}
-            total={1352831}
+            title="Barbers"
+            total={monthBarber}
             color="secondary"
-            icon={<img alt="New users" src="/assets/icons/glass/ic-glass-users.svg" />}
-            chart={{
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [56, 47, 40, 62, 73, 30, 23, 54],
-            }}
+            icon={<img alt="Barbers" src="/assets/icons/glass/ic-glass-users.svg" />}
           />
         </Grid>
 
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <AnalyticsWidgetSummary
-            title="Purchase orders"
-            percent={2.8}
-            total={1723315}
-            color="warning"
-            icon={<img alt="Purchase orders" src="/assets/icons/glass/ic-glass-buy.svg" />}
-            chart={{
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [40, 70, 50, 28, 70, 75, 7, 64],
-            }}
-          />
-        </Grid>
-
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <AnalyticsWidgetSummary
-            title="Messages"
-            percent={3.6}
-            total={234}
+            title="Appointments"
+            total={monthAppointment}
             color="error"
-            icon={<img alt="Messages" src="/assets/icons/glass/ic-glass-message.svg" />}
-            chart={{
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
-              series: [56, 30, 23, 54, 47, 40, 62, 73],
-            }}
+            icon={<img alt="Appointments" src="/assets/icons/glass/ic-glass-buy.svg" />}
           />
         </Grid>
 
-        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <AnalyticsCurrentVisits
-            title="Current visits"
-            chart={{
-              series: [
-                { label: 'America', value: 3500 },
-                { label: 'Asia', value: 2500 },
-                { label: 'Europe', value: 1500 },
-                { label: 'Africa', value: 500 },
-              ],
-            }}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <AnalyticsWidgetSummary
+            title="Reviews"
+            total={monthReview}
+            color="warning"
+            icon={<img alt="Reviews" src="/assets/icons/glass/ic-glass-message.svg" />}
           />
         </Grid>
 
-        <Grid size={{ xs: 12, md: 6, lg: 8 }}>
+        {topBarber && (
+          <Grid size={{ xs: 12, lg: 12 }}>
+            <Card
+              sx={{
+                p: 3,
+                display: 'flex',
+                alignItems: 'center',
+                borderRadius: 2,
+                boxShadow: 4,
+              }}
+            >
+              <img
+                src={topBarber.barberAvatar}
+                alt="Top Barber"
+                style={{
+                  height: '64px',
+                  width: '64px',
+                  objectFit: 'cover',
+                  marginRight: 16,
+                  borderRadius: '50%',
+                }}
+              />
+              <div>
+                <Typography variant="h6" color="text.primary">
+                  🎉 Top Barber of the Month: {topBarber.barberName}
+                </Typography>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Total Income: {topBarber.totalIncome.toLocaleString()} đ
+                </Typography>
+              </div>
+            </Card>
+          </Grid>
+        )}
+        <Grid size={{ xs: 12, lg: 12 }}>
+          <Card sx={{ p: 3 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Income Filter
+            </Typography>
+            <Grid container spacing={2} alignItems="center">
+              <TextField
+                select
+                label="Year"
+                value={year}
+                onChange={(e) => setYear(parseInt(e.target.value))}
+                fullWidth
+              >
+                {[2025, 2024, 2023, 2022, 2021].map((y) => (
+                  <MenuItem key={y} value={y}>
+                    {y}
+                  </MenuItem>
+                ))}
+              </TextField>
+
+              <Button variant="contained" color="primary" onClick={handleFetchChartData} fullWidth>
+                Apply
+              </Button>
+            </Grid>
+          </Card>
+        </Grid>
+
+        <Grid size={{ xs: 12, lg: 6 }}>
           <AnalyticsWebsiteVisits
-            title="Website visits"
-            subheader="(+43%) than last year"
+            title={`System Income in ${year}`}
             chart={{
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-              series: [
-                { name: 'Team A', data: [43, 33, 22, 37, 67, 68, 37, 24, 55] },
-                { name: 'Team B', data: [51, 70, 47, 67, 40, 37, 24, 70, 24] },
+              categories: [
+                'Jan',
+                'Feb',
+                'Mar',
+                'Apr',
+                'May',
+                'Jun',
+                'Jul',
+                'Aug',
+                'Sep',
+                'Oct',
+                'Nov',
+                'Dec',
               ],
+              series: [{ name: 'Income', data: systemRangeIncome }],
+            }}
+          />
+        </Grid>
+
+        <Grid size={{ xs: 12, lg: 6 }}>
+          <AnalyticsWebsiteVisits
+            title={`System Appointment in ${year}`}
+            chart={{
+              categories: [
+                'Jan',
+                'Feb',
+                'Mar',
+                'Apr',
+                'May',
+                'Jun',
+                'Jul',
+                'Aug',
+                'Sep',
+                'Oct',
+                'Nov',
+                'Dec',
+              ],
+              series: [{ name: 'Appointments', data: systemRangeAppointment }],
+            }}
+          />
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6, lg: 12 }}>
+          <AnalyticsWebsiteVisits
+            title="System Income in current Year (2025)"
+            subheader="Income each month of the year"
+            chart={{
+              categories: [
+                'Jan',
+                'Feb',
+                'Mar',
+                'Apr',
+                'May',
+                'Jun',
+                'Jul',
+                'Aug',
+                'Sep',
+                'Oct',
+                'Nov',
+                'Dec',
+              ],
+              series: [{ name: 'Income', data: yearIncome }],
             }}
           />
         </Grid>
 
         <Grid size={{ xs: 12, md: 6, lg: 8 }}>
           <AnalyticsConversionRates
-            title="Conversion rates"
-            subheader="(+43%) than last year"
+            title="Income of Barbers"
+            subheader="This month"
             chart={{
-              categories: ['Italy', 'Japan', 'China', 'Canada', 'France'],
-              series: [
-                { name: '2022', data: [44, 55, 41, 64, 22] },
-                { name: '2023', data: [53, 32, 33, 52, 13] },
-              ],
+              categories: barberIncome.map((b: any) => b.barberName),
+              series: [{ name: 'Income', data: barberIncome.map((b: any) => b.totalIncome) }],
             }}
           />
         </Grid>
 
         <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <AnalyticsCurrentSubject
-            title="Current subject"
+          <AnalyticsCurrentVisits
+            title="Rating Share by Barber"
             chart={{
-              categories: ['English', 'History', 'Physics', 'Geography', 'Chinese', 'Math'],
-              series: [
-                { name: 'Series 1', data: [80, 50, 30, 40, 100, 20] },
-                { name: 'Series 2', data: [20, 30, 40, 80, 20, 80] },
-                { name: 'Series 3', data: [44, 76, 78, 13, 43, 10] },
-              ],
+              series: ratingData.map((r: any) => ({
+                label: r.barberName,
+                value: r.averageRating,
+              })),
             }}
           />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6, lg: 8 }}>
-          <AnalyticsNews title="News" list={_posts.slice(0, 5)} />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <AnalyticsOrderTimeline title="Order timeline" list={_timeline} />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6, lg: 4 }}>
-          <AnalyticsTrafficBySite title="Traffic by site" list={_traffic} />
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6, lg: 8 }}>
-          <AnalyticsTasks title="Tasks" list={_tasks} />
         </Grid>
       </Grid>
     </DashboardContent>
