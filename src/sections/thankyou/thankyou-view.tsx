@@ -1,24 +1,31 @@
 /* eslint-disable perfectionist/sort-imports */
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-
-import { RouterLink } from 'src/routes/components';
-import { Logo } from 'src/components/logo';
-import { useParams } from 'react-router-dom';
-import { createInvoice } from 'src/redux/apiRequest';
+import Rating from '@mui/material/Rating';
+import TextField from '@mui/material/TextField';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import Cookie from 'js-cookie';
-import { useEffect } from 'react';
+import { createInvoice, createReview, getAppointment } from 'src/redux/apiRequest';
 import { toast } from 'react-toastify';
-
-// ----------------------------------------------------------------------
+import { Box, Button, Container, Typography } from '@mui/material';
+import { Logo } from 'src/components/logo';
+import { RouterLink } from 'src/routes/components';
 
 export function ThankYouView() {
   const { id, amount, method } = useParams();
   const dispatch = useDispatch();
   const accessToken = Cookie.get('access_token');
+
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [hasRated, setHasRated] = useState(false);
+  const [appointment, setAppointment] = useState<any>({});
+
+  const handleGetAppointment = async () => {
+    const data = await getAppointment(id, dispatch);
+    console.log('appointment', data.metadata);
+    setAppointment(data.metadata);
+  };
 
   const handleCreateInvoice = async () => {
     const data = await createInvoice(
@@ -31,8 +38,34 @@ export function ThankYouView() {
     }
   };
 
+  const handleSubmitRating = async () => {
+    if (rating > 0) {
+      try {
+        await createReview(
+          accessToken,
+          {
+            customer: appointment?.customer_name,
+            barber: appointment?.barber,
+            service: appointment?.service,
+            rating,
+            comment,
+          },
+          dispatch
+        );
+
+        toast.success('Thanks for your feedback!');
+        setHasRated(true);
+      } catch (error) {
+        toast.error('Oops! Something went wrong.');
+      }
+    } else {
+      toast.warning('Please select a rating before submitting.');
+    }
+  };
+
   useEffect(() => {
     handleCreateInvoice();
+    handleGetAppointment();
   }, []);
 
   return (
@@ -70,7 +103,51 @@ export function ThankYouView() {
           }}
         />
 
-        <Button component={RouterLink} href="/" size="large" variant="contained" color="primary">
+        {!hasRated && (
+          <Box sx={{ mb: 4, maxWidth: 500, width: '100%' }}>
+            <Typography variant="h6" sx={{ mb: 1 }}>
+              How was your experience?
+            </Typography>
+
+            <Rating
+              name="barber-rating"
+              value={rating}
+              onChange={(_, newValue: any) => setRating(newValue)}
+              size="large"
+            />
+
+            <TextField
+              multiline
+              minRows={3}
+              fullWidth
+              label="Leave a comment"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              sx={{ mt: 2 }}
+            />
+
+            <Box sx={{ mt: 2 }}>
+              <Button variant="outlined" onClick={handleSubmitRating}>
+                Submit Feedback
+              </Button>
+            </Box>
+          </Box>
+        )}
+
+        {hasRated && (
+          <Typography sx={{ mt: 2, color: 'success.main' }}>
+            You rated us {rating} star{rating > 1 ? 's' : ''}. Thanks for your feedback!
+          </Typography>
+        )}
+
+        <Button
+          component={RouterLink}
+          href="/"
+          size="large"
+          variant="contained"
+          color="primary"
+          sx={{ mt: 4 }}
+        >
           Back to home
         </Button>
       </Container>

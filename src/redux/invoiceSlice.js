@@ -73,17 +73,6 @@ const invoiceSlide = createSlice({
       state.update.isFetching = false;
       state.update.error = true;
     },
-    deleteInvoiceStart: (state) => {
-      state.delete.isFetching = true;
-    },
-    deleteInvoiceSuccess: (state) => {
-      state.delete.isFetching = false;
-      state.delete.error = false;
-    },
-    deleteInvoiceFailure: (state) => {
-      state.delete.isFetching = false;
-      state.delete.error = true;
-    },
   },
 });
 
