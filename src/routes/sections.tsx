@@ -14,6 +14,7 @@ import { DashboardLayout } from 'src/layouts/dashboard';
 // ----------------------------------------------------------------------
 
 export const DashboardPage = lazy(() => import('src/pages/dashboard'));
+export const BaberDashboardPage = lazy(() => import('src/pages/baber-dashboard'));
 export const BlogPage = lazy(() => import('src/pages/blog'));
 export const ServicePage = lazy(() => import('src/pages/service'));
 export const SchedulePage = lazy(() => import('src/pages/schedule'));
@@ -26,7 +27,7 @@ export const SignInPage = lazy(() => import('src/pages/sign-in'));
 export const ProductsPage = lazy(() => import('src/pages/products'));
 export const GeneralPage = lazy(() => import('src/pages/general'));
 export const InvoicePage = lazy(() => import('src/pages/invoice'));
-
+export const ReviewPage = lazy(() => import('src/pages/review'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const ThankYouPage = lazy(() => import('src/pages/thankyou'));
 
@@ -84,7 +85,7 @@ export const routesSection: RouteObject[] = [
       </DashboardLayout>
     ),
     children: [
-      { index: true, element: <DashboardPage /> },
+      { index: true, element: <DashboardPage />, loader: receptionistAndAdminLoader},
       { path: 'user', element: <UserPage /> },
       { path: 'products', element: <ProductsPage /> },
       { path: 'blog', element: <BlogPage /> },
@@ -97,6 +98,8 @@ export const routesSection: RouteObject[] = [
       { path: 'schedule', element: <SchedulePage />, loader: staffLoader },
       { path: 'payment/:id', element: <PaymentPage />, loader: receptionistLoader },
       { path: 'invoices', element: <InvoicePage />, loader: receptionistLoader },
+      { path: 'baber-dashboard', element: <BaberDashboardPage />, loader: staffLoader },
+      { path: 'review', element: <ReviewPage />, loader: staffLoader },
     ],
   },
   {

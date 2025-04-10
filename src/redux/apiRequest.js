@@ -1159,6 +1159,22 @@ export const getAllReviews = async (dispatch) => {
   }
 };
 
+export const getAllReviewsOfBarber = async (barberID, dispatch) => {
+  dispatch(getAllReviewsStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}review/barber/${barberID}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getAllReviewsSuccess(res.data));
+    console.log(res);
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(getAllReviewsFailure());
+  }
+};
+
 export const createReview = async (accessToken, review, dispatch) => {
   dispatch(createReviewStart());
   try {
