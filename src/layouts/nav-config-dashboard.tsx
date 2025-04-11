@@ -5,15 +5,14 @@ import Cookie from 'js-cookie';
 import {
   Dashboard,
   Person,
-  Article,
-  AdminPanelSettings,
   ShoppingCart,
   Inventory,
-  Storefront,
   CalendarToday,
   Schedule,
   ReceiptLong,
   RateReview,
+  CardGiftcard,
+  Redeem,
 } from '@mui/icons-material';
 
 // ----------------------------------------------------------------------
@@ -28,14 +27,14 @@ export type NavItem = {
 };
 
 export const navData: NavItem[] = [
-  ...(userRole === 'receptionist' || userRole === 'admin' 
+  ...(userRole === 'receptionist' || userRole === 'admin'
     ? [
         {
           title: 'Dashboard',
           path: '/',
           icon: <Dashboard />,
         },
-      ] 
+      ]
     : []),
   ...(userRole === 'receptionist'
     ? [
@@ -90,13 +89,23 @@ export const navData: NavItem[] = [
         },
       ]
     : []),
-  ...(userRole === 'receptionist' || userRole === 'admin' 
+  ...(userRole === 'receptionist' || userRole === 'admin'
     ? [
         {
           title: 'User',
           path: '/user',
           icon: <Person />,
-        }
-      ] 
+        },
+        {
+          title: 'Gift',
+          path: '/gift',
+          icon: <CardGiftcard />,
+        },
+        {
+          title: 'Redemption',
+          path: '/redemption',
+          icon: <Redeem />,
+        },
+      ]
     : []),
 ];

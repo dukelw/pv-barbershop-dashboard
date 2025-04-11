@@ -194,6 +194,26 @@ import {
   getSystemIncomeStart,
   getSystemIncomeSuccess,
 } from './statisticSlice';
+import {
+  createGiftFailure,
+  createGiftStart,
+  createGiftSuccess,
+  deleteGiftFailure,
+  deleteGiftStart,
+  deleteGiftSuccess,
+  getAllGiftsFailure,
+  getAllGiftsStart,
+  getAllGiftsSuccess,
+  getRedemptionsFailure,
+  getRedemptionsStart,
+  getRedemptionsSuccess,
+  redeemGiftFailure,
+  redeemGiftStart,
+  redeemGiftSuccess,
+  updateGiftFailure,
+  updateGiftStart,
+  updateGiftSuccess,
+} from './giftSlice';
 
 const REACT_APP_BASE_URL = import.meta.env.VITE_REACT_APP_BASE_URL;
 
@@ -322,6 +342,29 @@ export const changePassword = async (accessToken, userID, data, dispatch, axiosJ
     return res.data;
   } catch (error) {
     dispatch(changePasswordFailure());
+  }
+};
+
+export const updateAccumulatePoint = async (accessToken, userID, point, dispatch) => {
+  dispatch(updateUserStart());
+  try {
+    const res = await axios.put(
+      `${REACT_APP_BASE_URL}user/point`,
+      {
+        userID,
+        point,
+      },
+      {
+        headers: {
+          authorization: accessToken,
+          user: userID,
+        },
+      }
+    );
+    dispatch(updateUserSuccess(res.data));
+    return res.data;
+  } catch (error) {
+    dispatch(updateUserFailure());
   }
 };
 
@@ -1356,3 +1399,114 @@ export const getRatingsOfBarber = async (dispatch) => {
 };
 
 // End statistic
+
+// Start gift
+export const getAllGifts = async (dispatch) => {
+  dispatch(getAllGiftsStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}gift/list`);
+    dispatch(getAllGiftsSuccess(res.data.metadata));
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(getAllGiftsFailure());
+    console.error('Failed to get gifts:', error);
+  }
+};
+
+// Create a new gift
+export const createGift = async (accessToken, giftData, dispatch) => {
+  dispatch(createGiftStart());
+  try {
+    const res = await axios.post(`${REACT_APP_BASE_URL}gift/create`, giftData, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: accessToken,
+      },
+    });
+    dispatch(createGiftSuccess(res.data.metadata));
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(createGiftFailure());
+    console.error('Failed to create gift:', error);
+  }
+};
+
+// Update a gift
+export const updateGift = async (accessToken, id, giftData, dispatch) => {
+  dispatch(updateGiftStart());
+  try {
+    const res = await axios.put(`${REACT_APP_BASE_URL}gift/${id}/update`, giftData, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: accessToken,
+      },
+    });
+    dispatch(updateGiftSuccess(res.data.metadata));
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(updateGiftFailure());
+    console.error('Failed to update gift:', error);
+  }
+};
+
+// Redeem a gift
+export const redeemGift = async (accessToken, redeemData, dispatch) => {
+  dispatch(redeemGiftStart());
+  try {
+    const res = await axios.post(`${REACT_APP_BASE_URL}gift/redeem`, redeemData, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: accessToken,
+      },
+    });
+    dispatch(redeemGiftSuccess(res.data.metadata));
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(redeemGiftFailure());
+    console.error('Failed to redeem gift:', error);
+  }
+};
+
+// Get user redemption history
+export const getRedemptions = async (userID, dispatch) => {
+  dispatch(getRedemptionsStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}gift/redemptions?userID=${userID}`);
+    dispatch(getRedemptionsSuccess(res.data.metadata));
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(getRedemptionsFailure());
+    console.error('Failed to fetch redemption history:', error);
+  }
+};
+
+export const getAllRedemptions = async (dispatch) => {
+  dispatch(getRedemptionsStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}gift/all-redemption`);
+    dispatch(getRedemptionsSuccess(res.data.metadata));
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(getRedemptionsFailure());
+    console.error('Failed to fetch redemption history:', error);
+  }
+};
+
+export const deleteGift = async (accessToken, ID, dispatch) => {
+  dispatch(deleteGiftStart());
+  try {
+    const res = await axios.delete(`${REACT_APP_BASE_URL}gift/${ID}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `${accessToken}`,
+      },
+    });
+    dispatch(deleteGiftSuccess());
+    return res.data;
+  } catch (error) {
+    dispatch(deleteGiftFailure());
+    console.error('Failed to delete redemption:', error);
+  }
+};
+
+// End gift

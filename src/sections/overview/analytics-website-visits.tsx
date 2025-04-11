@@ -46,7 +46,7 @@ export function AnalyticsWebsiteVisits({ title, subheader, chart, sx, ...other }
     stroke: { width: 2, colors: ['transparent'] },
     xaxis: { categories: chart.categories },
     legend: { show: true },
-    tooltip: { y: { formatter: (value: number) => `${value} VND` } },
+    tooltip: { y: { formatter: (value: number) => `${value}` } },
     ...chart.options,
   });
 
