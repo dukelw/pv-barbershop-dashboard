@@ -26,8 +26,10 @@ export const UserPage = lazy(() => import('src/pages/user'));
 export const SignInPage = lazy(() => import('src/pages/sign-in'));
 export const ProductsPage = lazy(() => import('src/pages/products'));
 export const GeneralPage = lazy(() => import('src/pages/general'));
+export const GiftPage = lazy(() => import('src/pages/gift'));
 export const InvoicePage = lazy(() => import('src/pages/invoice'));
 export const ReviewPage = lazy(() => import('src/pages/review'));
+export const RedemptionPage = lazy(() => import('src/pages/redemption'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const ThankYouPage = lazy(() => import('src/pages/thankyou'));
 
@@ -85,7 +87,7 @@ export const routesSection: RouteObject[] = [
       </DashboardLayout>
     ),
     children: [
-      { index: true, element: <DashboardPage />, loader: receptionistAndAdminLoader},
+      { index: true, element: <DashboardPage />, loader: receptionistAndAdminLoader },
       { path: 'user', element: <UserPage /> },
       { path: 'products', element: <ProductsPage /> },
       { path: 'blog', element: <BlogPage /> },
@@ -100,6 +102,8 @@ export const routesSection: RouteObject[] = [
       { path: 'invoices', element: <InvoicePage />, loader: receptionistLoader },
       { path: 'baber-dashboard', element: <BaberDashboardPage />, loader: staffLoader },
       { path: 'review', element: <ReviewPage />, loader: staffLoader },
+      { path: 'gift', element: <GiftPage />, loader: receptionistAndAdminLoader },
+      { path: 'redemption', element: <RedemptionPage />, loader: receptionistAndAdminLoader },
     ],
   },
   {

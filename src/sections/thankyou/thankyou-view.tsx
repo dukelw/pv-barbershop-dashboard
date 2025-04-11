@@ -5,7 +5,12 @@ import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import Cookie from 'js-cookie';
-import { createInvoice, createReview, getAppointment } from 'src/redux/apiRequest';
+import {
+  createInvoice,
+  createReview,
+  getAppointment,
+  updateAccumulatePoint,
+} from 'src/redux/apiRequest';
 import { toast } from 'react-toastify';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { Logo } from 'src/components/logo';
@@ -24,6 +29,17 @@ export function ThankYouView() {
   const handleGetAppointment = async () => {
     const data = await getAppointment(id, dispatch);
     console.log('appointment', data.metadata);
+    if (data.metadata?.customer) {
+      const res = await updateAccumulatePoint(
+        accessToken,
+        data.metadata?.customer,
+        Math.floor(Number(amount) / 100),
+        dispatch
+      );
+      if (res) {
+        console.log('Accumulate successfully');
+      }
+    }
     setAppointment(data.metadata);
   };
 
