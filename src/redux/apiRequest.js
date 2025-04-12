@@ -1531,6 +1531,8 @@ export const deleteGift = async (accessToken, ID, dispatch) => {
 
 // End gift
 
+// Start discount
+
 // Get all discounts
 export const getAllDiscounts = async (dispatch) => {
   dispatch(getAllDiscountsStart());
@@ -1628,3 +1630,5 @@ export const deleteDiscount = async (accessToken, ID, dispatch) => {
     console.error('Failed to delete discount:', error);
   }
 };
+
+// End discount
