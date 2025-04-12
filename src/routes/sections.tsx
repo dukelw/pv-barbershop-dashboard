@@ -30,6 +30,7 @@ export const GiftPage = lazy(() => import('src/pages/gift'));
 export const InvoicePage = lazy(() => import('src/pages/invoice'));
 export const ReviewPage = lazy(() => import('src/pages/review'));
 export const RedemptionPage = lazy(() => import('src/pages/redemption'));
+export const DiscountPage = lazy(() => import('src/pages/discount'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const ThankYouPage = lazy(() => import('src/pages/thankyou'));
 
@@ -104,6 +105,7 @@ export const routesSection: RouteObject[] = [
       { path: 'review', element: <ReviewPage />, loader: staffLoader },
       { path: 'gift', element: <GiftPage />, loader: receptionistAndAdminLoader },
       { path: 'redemption', element: <RedemptionPage />, loader: receptionistAndAdminLoader },
+      { path: 'discount', element: <DiscountPage />, loader: receptionistLoader },
     ],
   },
   {

@@ -12,6 +12,7 @@ import invoiceReducer from './invoiceSlice';
 import reviewReducer from './reviewSlice';
 import giftReducer from './giftSlice';
 import statisticReducer from './statisticSlice';
+import discountReducer from './discountSlice';
 
 import {
   persistStore,
@@ -44,6 +45,7 @@ const rootReducer = combineReducers({
   review: reviewReducer,
   statistic: statisticReducer,
   gift: giftReducer,
+  discount: discountReducer,
 });
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 

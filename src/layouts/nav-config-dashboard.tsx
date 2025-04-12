@@ -13,6 +13,7 @@ import {
   RateReview,
   CardGiftcard,
   Redeem,
+  LocalOffer,
 } from '@mui/icons-material';
 
 // ----------------------------------------------------------------------
@@ -67,6 +68,11 @@ export const navData: NavItem[] = [
           title: 'Invoice',
           path: '/invoices',
           icon: <ReceiptLong />,
+        },
+        {
+          title: 'Discount',
+          path: '/discount',
+          icon: <LocalOffer />,
         },
       ]
     : []),
