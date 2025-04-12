@@ -8,7 +8,9 @@ import Cookie from 'js-cookie';
 import {
   createInvoice,
   createReview,
+  getAllDiscounts,
   getAppointment,
+  getUserDiscounts,
   updateAccumulatePoint,
 } from 'src/redux/apiRequest';
 import { toast } from 'react-toastify';
@@ -28,7 +30,6 @@ export function ThankYouView() {
 
   const handleGetAppointment = async () => {
     const data = await getAppointment(id, dispatch);
-    console.log('appointment', data.metadata);
     if (data.metadata?.customer) {
       const res = await updateAccumulatePoint(
         accessToken,
@@ -36,9 +37,6 @@ export function ThankYouView() {
         Math.floor(Number(amount) / 100),
         dispatch
       );
-      if (res) {
-        console.log('Accumulate successfully');
-      }
     }
     setAppointment(data.metadata);
   };

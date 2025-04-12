@@ -214,6 +214,26 @@ import {
   updateGiftStart,
   updateGiftSuccess,
 } from './giftSlice';
+import {
+  applyDiscountFailure,
+  applyDiscountStart,
+  applyDiscountSuccess,
+  createDiscountFailure,
+  createDiscountStart,
+  createDiscountSuccess,
+  deleteDiscountFailure,
+  deleteDiscountStart,
+  deleteDiscountSuccess,
+  getAllDiscountsFailure,
+  getAllDiscountsStart,
+  getAllDiscountsSuccess,
+  getUserDiscountsFailure,
+  getUserDiscountsStart,
+  getUserDiscountsSuccess,
+  updateDiscountFailure,
+  updateDiscountStart,
+  updateDiscountSuccess,
+} from './discountSlice';
 
 const REACT_APP_BASE_URL = import.meta.env.VITE_REACT_APP_BASE_URL;
 
@@ -1510,3 +1530,105 @@ export const deleteGift = async (accessToken, ID, dispatch) => {
 };
 
 // End gift
+
+// Start discount
+
+// Get all discounts
+export const getAllDiscounts = async (dispatch) => {
+  dispatch(getAllDiscountsStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}discount/list`);
+    dispatch(getAllDiscountsSuccess(res.data.metadata));
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(getAllDiscountsFailure());
+    console.error('Failed to get discounts:', error);
+  }
+};
+
+// Create a new discount
+export const createDiscount = async (accessToken, discountData, dispatch) => {
+  dispatch(createDiscountStart());
+  try {
+    const res = await axios.post(`${REACT_APP_BASE_URL}discount/create`, discountData, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: accessToken,
+      },
+    });
+    dispatch(createDiscountSuccess(res.data.metadata));
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(createDiscountFailure());
+    console.error('Failed to create discount:', error);
+  }
+};
+
+// Update a discount
+export const updateDiscount = async (accessToken, id, discountData, dispatch) => {
+  dispatch(updateDiscountStart());
+  try {
+    const res = await axios.put(`${REACT_APP_BASE_URL}discount/${id}/update`, discountData, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: accessToken,
+      },
+    });
+    dispatch(updateDiscountSuccess(res.data.metadata));
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(updateDiscountFailure());
+    console.error('Failed to update discount:', error);
+  }
+};
+
+// Apply a discount
+export const applyDiscount = async (accessToken, applyData, dispatch) => {
+  dispatch(applyDiscountStart());
+  try {
+    const res = await axios.post(`${REACT_APP_BASE_URL}discount/apply`, applyData, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: accessToken,
+      },
+    });
+    dispatch(applyDiscountSuccess(res.data.metadata));
+    return res.data.metadata;
+  } catch (error) {
+    dispatch(applyDiscountFailure());
+    console.error('Failed to apply discount:', error);
+  }
+};
+
+// Get user's discounts
+export const getUserDiscounts = async (userID, dispatch) => {
+  dispatch(getUserDiscountsStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}discount/user-discount/${userID}`);
+    dispatch(getUserDiscountsSuccess(res.data.metadata));
+    return res;
+  } catch (error) {
+    dispatch(getUserDiscountsFailure());
+    console.error('Failed to fetch user discounts:', error);
+  }
+};
+
+// Delete discount
+export const deleteDiscount = async (accessToken, ID, dispatch) => {
+  dispatch(deleteDiscountStart());
+  try {
+    const res = await axios.delete(`${REACT_APP_BASE_URL}discount/${ID}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: accessToken,
+      },
+    });
+    dispatch(deleteDiscountSuccess());
+    return res.data;
+  } catch (error) {
+    dispatch(deleteDiscountFailure());
+    console.error('Failed to delete discount:', error);
+  }
+};
+
+// End discount
