@@ -25,6 +25,7 @@
 - Open browser: `http://localhost:3039`
 ## Upgrade to PRO Version
 
+
 | Minimal Free                | [Minimal Pro](https://material-ui.com/store/items/minimal-dashboard/)                                   |
 | :-------------------------- | :------------------------------------------------------------------------------------------------------ |
 | **6** Pages                 | **70+** Pages                                                                                           |
