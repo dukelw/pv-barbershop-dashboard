@@ -26,14 +26,17 @@ import {
   updateAppointmentStatus,
   deleteAppointment,
   findAllFreeBarber,
+  createNotification,
 } from 'src/redux/apiRequest';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import moment from 'moment';
 
 const hours = Array.from({ length: 15 }, (_, i) => `${i + 8}:00`); // 8h -> 22h
 
 export default function Timetable() {
   const accessToken = Cookie.get('access_token');
+  const receptionistName = Cookie.get('user_name');
   const [appointments, setAppointments] = useState<any[]>([]);
   const [barbers, setBarbers] = useState<any[]>([]);
   const [freeBarbers, setFreeBarbers] = useState<any[]>([]);
@@ -171,18 +174,54 @@ export default function Timetable() {
   const handleAccept = async (appointment: any) => {
     if (appointment.barber) {
       await updateAppointmentStatus(accessToken, appointment._id, 'confirmed', dispatch);
-      handleGetAppointments();
+      await createNotification(
+        accessToken,
+        {
+          user: appointment.barber._id,
+          title: 'New Schedule',
+          message: `You will have an appointment with customer ${appointment.customer_name} from ${moment(appointment.appointment_start).format('HH:mm DD/MM/YYYY')} to ${moment(appointment.appointment_end).format('HH:mm DD/MM/YYYY')}`,
+          data: appointment,
+          is_read: false,
+        },
+        dispatch
+      );
+      if (appointment?.customer) {
+        await createNotification(
+          accessToken,
+          {
+            user: appointment?.customer._id,
+            title: 'Your Schedule',
+            message: `Dear Customer ${appointment.customer_name}, you will have an appointment from ${moment(appointment.appointment_start).format('HH:mm DD/MM/YYYY')} to ${moment(appointment.appointment_end).format('HH:mm DD/MM/YYYY')} with barber ${appointment.barber.user_name}`,
+            data: appointment,
+            is_read: false,
+          },
+          dispatch
+        );
+      }
+      await handleGetAppointments();
       handleClose();
     } else {
       await handleGetFreeBarber(appointment.appointment_start, appointment.appointment_end);
-      setAppointmentToUpdate(appointment._id);
+      setAppointmentToUpdate(appointment);
       setAssignBarberForm(true);
     }
   };
 
   const handleComplete = async (appointment: any) => {
     await updateAppointmentStatus(accessToken, appointment._id, 'completed', dispatch);
-    handleGetAppointments();
+    await createNotification(
+      accessToken,
+      {
+        user: appointment.barber._id,
+        title: 'Appointment Confirmed as Completed',
+        message: `Receptionist ${receptionistName} has confirmed that you have completed the haircut appointment from ${moment(appointment.appointment_start).format('HH:mm DD/MM/YYYY')} to ${moment(appointment.appointment_end).format('HH:mm DD/MM/YYYY')}.`,
+        data: appointment,
+        is_read: false,
+      },
+      dispatch
+    );
+
+    await handleGetAppointments();
     window.open(`/payment/${appointment._id}`);
   };
 
@@ -193,12 +232,36 @@ export default function Timetable() {
   const handleAssignBarber = async () => {
     if (appointmentToUpdate && selectedBarber) {
       const updatedAppointment = {
-        _id: appointmentToUpdate,
+        _id: appointmentToUpdate._id,
         barber: selectedBarber,
       };
 
       await updateAppointment(accessToken, updatedAppointment, dispatch);
       await updateAppointmentStatus(accessToken, updatedAppointment._id, 'confirmed', dispatch);
+      await createNotification(
+        accessToken,
+        {
+          user: selectedBarber._id,
+          title: 'New Schedule',
+          message: `Customer ${appointmentToUpdate.customer_name} has booked an appointment from ${moment(appointmentToUpdate.appointment_start).format('HH:mm DD/MM/YYYY')} to ${moment(appointmentToUpdate.appointment_end).format('HH:mm DD/MM/YYYY')}`,
+          data: { appointmentToUpdate, barber: selectedBarber },
+          is_read: false,
+        },
+        dispatch
+      );
+      if (appointmentToUpdate?.customer) {
+        await createNotification(
+          accessToken,
+          {
+            user: appointmentToUpdate?.customer._id,
+            title: 'Your Schedule',
+            message: `Dear Customer ${appointmentToUpdate.customer_name}, you will have an appointment from ${moment(appointmentToUpdate.appointment_start).format('HH:mm DD/MM/YYYY')} to ${moment(appointmentToUpdate.appointment_end).format('HH:mm DD/MM/YYYY')} with barber ${selectedBarber?.user_name}`,
+            data: { appointmentToUpdate, barber: selectedBarber },
+            is_read: false,
+          },
+          dispatch
+        );
+      }
       await handleGetAppointments();
       handleCloseAssignBarberForm();
       handleClose();

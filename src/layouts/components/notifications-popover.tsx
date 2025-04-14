@@ -1,7 +1,8 @@
+/* eslint-disable perfectionist/sort-imports */
 import type { IconButtonProps } from '@mui/material/IconButton';
+import Cookie from 'js-cookie';
 
-import { useState, useCallback } from 'react';
-
+import { useState, useCallback, useEffect } from 'react';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import Badge from '@mui/material/Badge';
@@ -17,31 +18,36 @@ import ListSubheader from '@mui/material/ListSubheader';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
 
+import socket from 'src/hooks/useSocker';
+
 import { fToNow } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import { getNotifications, markRead } from 'src/redux/apiRequest';
+import { useDispatch } from 'react-redux';
 
 // ----------------------------------------------------------------------
 
 type NotificationItemProps = {
-  id: string;
-  type: string;
+  _id: string;
   title: string;
-  isUnRead: boolean;
-  description: string;
-  avatarUrl: string | null;
-  postedAt: string | number | null;
+  message: string;
+  is_read: boolean;
+  createdAt: string | number | null;
 };
 
 export type NotificationsPopoverProps = IconButtonProps & {
   data?: NotificationItemProps[];
 };
 
-export function NotificationsPopover({ data = [], sx, ...other }: NotificationsPopoverProps) {
-  const [notifications, setNotifications] = useState(data);
+export function NotificationsPopover({ sx, ...other }: NotificationsPopoverProps) {
+  const userId = Cookie.get('_id');
+  const accessToken = Cookie.get('access_token');
+  const dispatch = useDispatch();
+  const [notifications, setNotifications] = useState<any>(null);
 
-  const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
+  const totalUnRead = notifications?.filter((item: any) => item.is_read === false).length;
 
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
 
@@ -53,14 +59,40 @@ export function NotificationsPopover({ data = [], sx, ...other }: NotificationsP
     setOpenPopover(null);
   }, []);
 
-  const handleMarkAllAsRead = useCallback(() => {
-    const updatedNotifications = notifications.map((notification) => ({
-      ...notification,
-      isUnRead: false,
-    }));
+  const handleMarkAllAsRead = useCallback(async () => {
+    const unreadNotifications = notifications?.filter((n: any) => !n.is_read);
 
-    setNotifications(updatedNotifications);
-  }, [notifications]);
+    if (unreadNotifications.length === 0) return;
+
+    await Promise.all(unreadNotifications.map((n: any) => markRead(accessToken, n._id, dispatch)));
+
+    const updated = await getNotifications(userId, dispatch);
+    setNotifications(updated.metadata);
+  }, [notifications, accessToken, userId, dispatch]);
+
+  const handleGetNotification = async () => {
+    const data = await getNotifications(userId, dispatch);
+    setNotifications(data.metadata);
+  };
+
+  const handleMarkAsRead = async (notificationId: string) => {
+    await markRead(accessToken, notificationId, dispatch);
+    const updated = await getNotifications(userId, dispatch);
+    setNotifications(updated.metadata);
+  };
+
+  useEffect(() => {
+    handleGetNotification();
+    socket.emit('join_room', userId);
+
+    socket.on('new_notification', (newNotification: any) => {
+      setNotifications((prev: any) => [newNotification, ...prev]);
+    });
+
+    return () => {
+      socket.off('new_notification');
+    };
+  }, []);
 
   return (
     <>
@@ -128,9 +160,15 @@ export function NotificationsPopover({ data = [], sx, ...other }: NotificationsP
               </ListSubheader>
             }
           >
-            {notifications.slice(0, 2).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
-            ))}
+            {notifications
+              ?.slice(0, 2)
+              ?.map((notification: any) => (
+                <NotificationItem
+                  key={notification._id}
+                  notification={notification}
+                  onMarkAsRead={handleMarkAsRead}
+                />
+              ))}
           </List>
 
           <List
@@ -141,9 +179,15 @@ export function NotificationsPopover({ data = [], sx, ...other }: NotificationsP
               </ListSubheader>
             }
           >
-            {notifications.slice(2, 5).map((notification) => (
-              <NotificationItem key={notification.id} notification={notification} />
-            ))}
+            {notifications
+              ?.slice(2, 5)
+              ?.map((notification: any) => (
+                <NotificationItem
+                  key={notification._id}
+                  notification={notification}
+                  onMarkAsRead={handleMarkAsRead}
+                />
+              ))}
           </List>
         </Scrollbar>
 
@@ -160,26 +204,41 @@ export function NotificationsPopover({ data = [], sx, ...other }: NotificationsP
 }
 
 // ----------------------------------------------------------------------
-
-function NotificationItem({ notification }: { notification: NotificationItemProps }) {
-  const { avatarUrl, title } = renderContent(notification);
-
+function NotificationItem({
+  notification,
+  onMarkAsRead,
+}: {
+  notification: NotificationItemProps;
+  onMarkAsRead: (notificationId: string) => void;
+}) {
   return (
     <ListItemButton
       sx={{
         py: 1.5,
         px: 2.5,
         mt: '1px',
-        ...(notification.isUnRead && {
+        ...(!notification.is_read && {
           bgcolor: 'action.selected',
         }),
       }}
     >
       <ListItemAvatar>
-        <Avatar sx={{ bgcolor: 'background.neutral' }}>{avatarUrl}</Avatar>
+        <Avatar
+          sx={{ bgcolor: 'background.neutral' }}
+          src={
+            notification.title === 'Appointment Confirmed as Completed'
+              ? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTp9zCTxTTeD55Fa45aBsTOmGYMSoKLr86kCQ&s'
+              : notification.title === 'New Appointment' || notification.title === 'New Schedule'
+                ? 'https://cdn-icons-png.flaticon.com/512/10786/10786066.png'
+                : notification.title === 'Haircut Complete'
+                  ? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6nOI0usYypR7m6rWTeQuhZ39rtmiS5aTsDw&s'
+                  : 'https://cdn-icons-png.flaticon.com/512/5978/5978100.png'
+          }
+        />
       </ListItemAvatar>
+
       <ListItemText
-        primary={title}
+        primary={renderContent(notification).title}
         secondary={
           <Typography
             variant="caption"
@@ -192,10 +251,18 @@ function NotificationItem({ notification }: { notification: NotificationItemProp
             }}
           >
             <Iconify width={14} icon="solar:clock-circle-outline" />
-            {fToNow(notification.postedAt)}
+            {fToNow(notification.createdAt)}
           </Typography>
         }
       />
+
+      {!notification.is_read && (
+        <Tooltip title="Mark as read">
+          <IconButton size="small" onClick={() => onMarkAsRead(notification._id)}>
+            <Iconify icon="solar:check-circle-bold" />
+          </IconButton>
+        </Tooltip>
+      )}
     </ListItemButton>
   );
 }
@@ -207,52 +274,13 @@ function renderContent(notification: NotificationItemProps) {
     <Typography variant="subtitle2">
       {notification.title}
       <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
-        &nbsp; {notification.description}
+        &nbsp; {notification.message}
       </Typography>
     </Typography>
   );
-
-  if (notification.type === 'order-placed') {
-    return {
-      avatarUrl: (
-        <img
-          alt={notification.title}
-          src="/assets/icons/notification/ic-notification-package.svg"
-        />
-      ),
-      title,
-    };
-  }
-  if (notification.type === 'order-shipped') {
-    return {
-      avatarUrl: (
-        <img
-          alt={notification.title}
-          src="/assets/icons/notification/ic-notification-shipping.svg"
-        />
-      ),
-      title,
-    };
-  }
-  if (notification.type === 'mail') {
-    return {
-      avatarUrl: (
-        <img alt={notification.title} src="/assets/icons/notification/ic-notification-mail.svg" />
-      ),
-      title,
-    };
-  }
-  if (notification.type === 'chat-message') {
-    return {
-      avatarUrl: (
-        <img alt={notification.title} src="/assets/icons/notification/ic-notification-chat.svg" />
-      ),
-      title,
-    };
-  }
   return {
-    avatarUrl: notification.avatarUrl ? (
-      <img alt={notification.title} src={notification.avatarUrl} />
+    avatarUrl: notification.title ? (
+      <img alt={notification.title} src={notification.title} />
     ) : null,
     title,
   };
