@@ -28,11 +28,14 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
+  createNotification,
   getAllAppointmentsOfBarber,
   updateAppointment,
   updateAppointmentProof,
   uploadImage,
+  findReceptionists,
 } from 'src/redux/apiRequest';
+import moment from 'moment';
 
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const hours = Array.from({ length: 15 }, (_, i) => `${i + 8}:00`); // 8:00 đến 22:00
@@ -42,8 +45,10 @@ export default function Timetable() {
   const [open, setOpen] = useState(false);
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const currentUser = useSelector((state: any) => state.user.signin.currentUser);
+  const [receptionists, setReceptionists] = useState<any>([]);
   const accessToken = Cookie.get('access_token');
   const userID = Cookie.get('_id');
+  const barberName = Cookie.get('user_name');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [schedules, setSchedules] = useState<any[]>([]);
@@ -54,7 +59,13 @@ export default function Timetable() {
     setImageFile(null);
   };
 
-  const handleUpdateProof = async () => {
+  const handleGetReceptionist = async () => {
+    const data = await findReceptionists(dispatch);
+    console.log('Receptionist', data);
+    setReceptionists(data.metadata);
+  };
+
+  const handleUpdateProof = async (appointment: any) => {
     let imageUrl = '';
     try {
       if (imageFile) {
@@ -62,10 +73,29 @@ export default function Timetable() {
         imageUrl = imageData.img_url;
       }
 
-      await updateAppointmentProof(accessToken, selectedAppointment._id, imageUrl, dispatch);
-
-      await handleGetAllSchedule();
-      handleClose();
+      const res = await updateAppointmentProof(
+        accessToken,
+        selectedAppointment._id,
+        imageUrl,
+        dispatch
+      );
+      if (res) {
+        for (const r of receptionists) {
+          await createNotification(
+            accessToken,
+            {
+              user: r._id,
+              title: 'Haircut Complete',
+              message: `Barber ${barberName} has completed haircut appointment from ${moment(appointment.appointment_start).format('HH:mm DD/MM/YYYY')} to ${moment(appointment.appointment_end).format('HH:mm DD/MM/YYYY')}`,
+              data: res,
+              is_read: false,
+            },
+            dispatch
+          );
+        }
+        await handleGetAllSchedule();
+        handleClose();
+      }
     } catch (error) {
       console.error('Error creating schedule:', error);
     }
@@ -109,6 +139,7 @@ export default function Timetable() {
   };
 
   useEffect(() => {
+    handleGetReceptionist();
     handleGetAllSchedule();
   }, []);
 
@@ -341,7 +372,12 @@ export default function Timetable() {
         </DialogContent>
         <DialogActions>
           {selectedAppointment?.status !== 'completed' && (
-            <Button onClick={handleUpdateProof} variant="contained" color="primary">
+            <Button
+              onClick={() => handleUpdateProof(selectedAppointment)}
+              variant="contained"
+              color="primary"
+              disabled={!imageFile}
+            >
               Upload proof
             </Button>
           )}

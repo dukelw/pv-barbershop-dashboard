@@ -19,9 +19,4 @@ export const _account: AccountPopoverProps['data'] = [
     href: `${import.meta.env.VITE_USER_BASE_URL}account/${Cookie.get("_id")}`,
     icon: <Iconify width={22} icon="solar:shield-keyhole-bold-duotone" />,
   },
-  // {
-  //   label: 'Settings',
-  //   href: '#',
-  //   icon: <Iconify width={22} icon="solar:settings-bold-duotone" />,
-  // },
 ];
