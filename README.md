@@ -54,6 +54,8 @@ npm start
 # Open browser
 http://localhost:3039
 
+```
+---
 
 ## 🌐 Credits
 This project uses the UI layout and structure from the Minimal UI (Free Version), created by minimals.cc.
