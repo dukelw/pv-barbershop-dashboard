@@ -14,6 +14,7 @@ import {
   CardGiftcard,
   Redeem,
   LocalOffer,
+  Money,
 } from '@mui/icons-material';
 
 // ----------------------------------------------------------------------
@@ -34,6 +35,15 @@ export const navData: NavItem[] = [
           title: 'Dashboard',
           path: '/',
           icon: <Dashboard />,
+        },
+      ]
+    : []),
+  ...(userRole === 'admin'
+    ? [
+        {
+          title: 'Salary',
+          path: '/salary',
+          icon: <Money />,
         },
       ]
     : []),
