@@ -624,7 +624,7 @@ export function DiscountView() {
           startIcon={<Iconify icon="mingcute:add-line" />}
           onClick={handleOpenForm}
         >
-          New discounts
+          New discount
         </Button>
       </Box>
 

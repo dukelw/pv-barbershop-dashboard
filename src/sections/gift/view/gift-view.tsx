@@ -424,7 +424,7 @@ export function GiftView() {
           startIcon={<Iconify icon="mingcute:add-line" />}
           onClick={handleOpenForm}
         >
-          New gifts
+          New gift
         </Button>
       </Box>
 

@@ -365,7 +365,7 @@ export function ServiceView() {
           startIcon={<Iconify icon="mingcute:add-line" />}
           onClick={handleOpenForm}
         >
-          New services
+          New service
         </Button>
       </Box>
 
