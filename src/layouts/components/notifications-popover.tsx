@@ -24,7 +24,7 @@ import { fToNow } from 'src/utils/format-time';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
-import { getNotifications, markRead } from 'src/redux/apiRequest';
+import { deleteAllNotification, getNotifications, markRead } from 'src/redux/apiRequest';
 import { useDispatch } from 'react-redux';
 
 // ----------------------------------------------------------------------
@@ -69,6 +69,11 @@ export function NotificationsPopover({ sx, ...other }: NotificationsPopoverProps
     const updated = await getNotifications(userId, dispatch);
     setNotifications(updated.metadata);
   }, [notifications, accessToken, userId, dispatch]);
+
+  const handleDeleteNotification = async () => {
+    await deleteAllNotification(accessToken, userId, dispatch);
+    handleGetNotification()
+  };
 
   const handleGetNotification = async () => {
     const data = await getNotifications(userId, dispatch);
@@ -194,8 +199,8 @@ export function NotificationsPopover({ sx, ...other }: NotificationsPopoverProps
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <Box sx={{ p: 1 }}>
-          <Button fullWidth disableRipple color="inherit">
-            View all
+          <Button onClick={handleDeleteNotification} fullWidth disableRipple color="inherit">
+            Clear all
           </Button>
         </Box>
       </Popover>
