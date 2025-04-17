@@ -1026,6 +1026,7 @@ export const updateAppointmentStatus = async (accessToken, appointmentID, status
       }
     );
     dispatch(updateAppointmentSuccess(res.data));
+    return res;
   } catch (error) {
     dispatch(updateAppointmentFailure());
   }

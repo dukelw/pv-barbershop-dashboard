@@ -228,11 +228,13 @@ function NotificationItem({
           src={
             notification.title === 'Appointment Confirmed as Completed'
               ? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTp9zCTxTTeD55Fa45aBsTOmGYMSoKLr86kCQ&s'
-              : notification.title === 'New Appointment' || notification.title === 'New Schedule'
-                ? 'https://cdn-icons-png.flaticon.com/512/10786/10786066.png'
-                : notification.title === 'Haircut Complete'
-                  ? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6nOI0usYypR7m6rWTeQuhZ39rtmiS5aTsDw&s'
-                  : 'https://cdn-icons-png.flaticon.com/512/5978/5978100.png'
+              : notification.title === 'Haircut Canceled!'
+                ? 'https://img.icons8.com/color/512/cancel.png'
+                : notification.title === 'New Appointment' || notification.title === 'New Schedule'
+                  ? 'https://cdn-icons-png.flaticon.com/512/10786/10786066.png'
+                  : notification.title === 'Haircut Complete'
+                    ? 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6nOI0usYypR7m6rWTeQuhZ39rtmiS5aTsDw&s'
+                    : 'https://cdn-icons-png.flaticon.com/512/5978/5978100.png'
           }
         />
       </ListItemAvatar>

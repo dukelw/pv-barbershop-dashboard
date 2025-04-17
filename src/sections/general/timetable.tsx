@@ -31,12 +31,14 @@ import {
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import moment from 'moment';
+import socket from 'src/hooks/useSocker';
 
 const hours = Array.from({ length: 15 }, (_, i) => `${i + 8}:00`); // 8h -> 22h
 
 export default function Timetable() {
   const accessToken = Cookie.get('access_token');
   const receptionistName = Cookie.get('user_name');
+  const userID = Cookie.get('_id');
   const [appointments, setAppointments] = useState<any[]>([]);
   const [barbers, setBarbers] = useState<any[]>([]);
   const [freeBarbers, setFreeBarbers] = useState<any[]>([]);
@@ -272,6 +274,18 @@ export default function Timetable() {
     window.location.href = `${import.meta.env.VITE_USER_BASE_URL}update-appointment/${appointment._id}`;
   };
 
+  useEffect(() => {
+    socket.emit('join_room', userID);
+
+    socket.on('new_notification', (newNotification: any) => {
+      handleGetAppointments();
+    });
+
+    return () => {
+      socket.off('new_notification');
+    };
+  }, []);
+
   return (
     <Box>
       <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
@@ -450,12 +464,23 @@ export default function Timetable() {
                               left: 2,
                               right: 2,
                               height: `calc(${durationInHours * 100}% + ${(durationInHours - 1) * 1}px)`,
-                              bgcolor:
-                                apt.status === 'completed'
-                                  ? 'green'
-                                  : apt.complete_picture
-                                    ? '#b76e00'
-                                    : '#90caf9',
+                              bgcolor: (() => {
+                                const isPast = new Date(apt.appointment_end) < new Date();
+                                if (apt.status === 'pending') {
+                                  return '#90caf9';
+                                } else if (
+                                  apt.status === 'canceled' ||
+                                  (isPast && apt.status !== 'completed' && !apt.complete_picture)
+                                ) {
+                                  return 'red';
+                                } else if (apt.status === 'completed') {
+                                  return 'green';
+                                } else if (apt.complete_picture) {
+                                  return '#b76e00';
+                                } else {
+                                  return '#90caf9';
+                                }
+                              })(),
                               zIndex: 1,
                               padding: '2px',
                               overflow: 'hidden',

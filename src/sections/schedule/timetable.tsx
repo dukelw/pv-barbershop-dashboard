@@ -34,8 +34,10 @@ import {
   updateAppointmentProof,
   uploadImage,
   findReceptionists,
+  updateAppointmentStatus,
 } from 'src/redux/apiRequest';
 import moment from 'moment';
+import socket from 'src/hooks/useSocker';
 
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const hours = Array.from({ length: 15 }, (_, i) => `${i + 8}:00`); // 8:00 đến 22:00
@@ -63,6 +65,27 @@ export default function Timetable() {
     const data = await findReceptionists(dispatch);
     console.log('Receptionist', data);
     setReceptionists(data.metadata);
+  };
+
+  const handleCancel = async (appointment: any) => {
+    const data = await updateAppointmentStatus(accessToken, appointment._id, 'canceled', dispatch);
+    if (data) {
+      for (const r of receptionists) {
+        await createNotification(
+          accessToken,
+          {
+            user: r._id,
+            title: 'Haircut Canceled!',
+            message: `Barber ${barberName} has canceled haircut appointment from ${moment(appointment.appointment_start).format('HH:mm DD/MM/YYYY')} to ${moment(appointment.appointment_end).format('HH:mm DD/MM/YYYY')} with customer ${appointment.customer_name}, please contact with them!`,
+            data: appointment,
+            is_read: false,
+          },
+          dispatch
+        );
+      }
+      handleGetAllSchedule();
+      handleClose();
+    }
   };
 
   const handleUpdateProof = async (appointment: any) => {
@@ -141,6 +164,18 @@ export default function Timetable() {
   useEffect(() => {
     handleGetReceptionist();
     handleGetAllSchedule();
+  }, []);
+
+  useEffect(() => {
+    socket.emit('join_room', userID);
+
+    socket.on('new_notification', (newNotification: any) => {
+      handleGetAllSchedule();
+    });
+
+    return () => {
+      socket.off('new_notification');
+    };
   }, []);
 
   const NOTE = [
@@ -263,12 +298,21 @@ export default function Timetable() {
                           left: 2,
                           right: 2,
                           height: `calc(${durationInHours * 100}% + ${(durationInHours - 1) * 1}px)`,
-                          bgcolor:
-                            apt.status === 'completed'
-                              ? 'green'
-                              : apt.complete_picture
-                                ? '#b76e00'
-                                : '#90caf9',
+                          bgcolor: (() => {
+                            const isPast = new Date(apt.appointment_end) < new Date();
+                            if (
+                              apt.status === 'canceled' ||
+                              (isPast && apt.status !== 'completed' && !apt.complete_picture)
+                            ) {
+                              return 'red';
+                            } else if (apt.status === 'completed') {
+                              return 'green';
+                            } else if (apt.complete_picture) {
+                              return '#b76e00';
+                            } else {
+                              return '#90caf9';
+                            }
+                          })(),
                           zIndex: 1,
                           padding: '2px',
                           overflow: 'hidden',
@@ -379,6 +423,16 @@ export default function Timetable() {
               disabled={!imageFile}
             >
               Upload proof
+            </Button>
+          )}
+          {selectedAppointment?.status !== 'completed' && (
+            <Button
+              onClick={() => handleCancel(selectedAppointment)}
+              variant="contained"
+              color="error"
+              disabled={new Date(selectedAppointment?.appointment_end) < new Date()}
+            >
+              Cancel
             </Button>
           )}
           <Button onClick={handleClose}>Close</Button>
