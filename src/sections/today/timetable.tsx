@@ -219,12 +219,23 @@ export default function Timetable() {
                               left: 2,
                               right: 2,
                               height: `calc(${durationInHours * 100}% + ${(durationInHours - 1) * 1}px)`,
-                              bgcolor:
-                                apt.status === 'completed'
-                                  ? 'green'
-                                  : apt.complete_picture
-                                    ? '#b76e00'
-                                    : '#90caf9',
+                              bgcolor: (() => {
+                                const isPast = new Date(apt.appointment_end) < new Date();
+                                if (apt.status === 'pending') {
+                                  return '#90caf9';
+                                } else if (
+                                  apt.status === 'canceled' ||
+                                  (isPast && apt.status !== 'completed' && !apt.complete_picture)
+                                ) {
+                                  return 'red';
+                                } else if (apt.status === 'completed') {
+                                  return 'green';
+                                } else if (apt.complete_picture) {
+                                  return '#b76e00';
+                                } else {
+                                  return '#90caf9';
+                                }
+                              })(),
                               zIndex: 1,
                               padding: '2px',
                               overflow: 'hidden',

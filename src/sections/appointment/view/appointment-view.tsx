@@ -138,9 +138,7 @@ export function AppointmentView() {
     <DashboardContent>
       <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
         <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          Are you sure you want to delete this appointment?
-        </DialogContent>
+        <DialogContent>Are you sure you want to delete this appointment?</DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
           <Button onClick={handleConfirmDelete} color="error" variant="contained">
@@ -336,7 +334,12 @@ export function AppointmentView() {
                           variant="contained"
                           color="secondary"
                           onClick={() => handleAccept(appointment)}
-                          disabled={appointment.status === 'confirmed'}
+                          disabled={
+                            appointment.status === 'confirmed' ||
+                            appointment.status === 'completed' ||
+                            appointment.status === 'canceled' ||
+                            new Date(appointment.appointment_end) < new Date()
+                          }
                         >
                           Accept
                         </Button>
@@ -357,7 +360,7 @@ export function AppointmentView() {
                           variant="contained"
                           color="error"
                           onClick={() => handleAskDelete(appointment)}
-                          disabled={appointment.status === "completed" ? true : false}
+                          disabled={appointment.status === 'completed' ? true : false}
                         >
                           Delete
                         </Button>

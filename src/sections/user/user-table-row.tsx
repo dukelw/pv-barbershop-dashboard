@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-useless-fragment */
 /* eslint-disable perfectionist/sort-imports */
 import { useState, useCallback } from 'react';
 
@@ -13,6 +14,7 @@ import MenuItem, { menuItemClasses } from '@mui/material/MenuItem';
 
 import { Label } from 'src/components/label';
 import Box from '@mui/material/Box';
+import Cookie from 'js-cookie';
 // ----------------------------------------------------------------------
 
 export type UserProps = {
@@ -29,9 +31,8 @@ type UserTableRowProps = {
   row: UserProps;
   selected: boolean;
   onSelectRow: () => void;
-  onDelete: (user: UserProps) => void; 
+  onDelete: (user: UserProps) => void;
 };
-
 
 export function UserTableRow({ row, selected, onSelectRow, onDelete }: UserTableRowProps) {
   const [openPopover, setOpenPopover] = useState<HTMLButtonElement | null>(null);
@@ -55,7 +56,7 @@ export function UserTableRow({ row, selected, onSelectRow, onDelete }: UserTable
         </TableCell>
 
         <TableCell>{row.user_email}</TableCell>
-        
+
         <TableCell>{row.user_gender || '-'}</TableCell>
 
         <TableCell>{row.user_role || '-'}</TableCell>
@@ -66,14 +67,15 @@ export function UserTableRow({ row, selected, onSelectRow, onDelete }: UserTable
           <Label color="success">Active</Label>
         </TableCell>
 
-        <TableCell> 
+        <TableCell>
           <Button
             onClick={() => {
               handleClosePopover();
-              onDelete(row); 
+              onDelete(row);
             }}
-            variant="contained" 
+            variant="contained"
             color="error"
+            disabled={Cookie.get('user_role') !== 'admin'}
           >
             Delete
           </Button>
