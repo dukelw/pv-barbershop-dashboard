@@ -45,6 +45,21 @@ export const navData: NavItem[] = [
           path: '/salary',
           icon: <Money />,
         },
+        {
+          title: 'User',
+          path: '/user',
+          icon: <Person />,
+        },
+        {
+          title: 'Inventory',
+          path: '/inventories',
+          icon: <Inventory />,
+        },
+        {
+          title: 'Invoice',
+          path: '/invoices',
+          icon: <ReceiptLong />,
+        },
       ]
     : []),
   ...(userRole === 'receptionist'
@@ -105,7 +120,7 @@ export const navData: NavItem[] = [
         },
       ]
     : []),
-  ...(userRole === 'receptionist' || userRole === 'admin'
+  ...(userRole === 'receptionist'
     ? [
         {
           title: 'User',

@@ -28,9 +28,7 @@ import { Scrollbar } from 'src/components/scrollbar';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Cookie from 'js-cookie';
-import {
-  getAllInvoices,
-} from 'src/redux/apiRequest';
+import { getAllInvoices } from 'src/redux/apiRequest';
 
 // PDF export
 import jsPDF from 'jspdf';
@@ -44,6 +42,7 @@ export function InvoiceView() {
   const navigate = useNavigate();
   const table = useTable();
   const [invoices, setInvoices] = useState<any[]>([]);
+  const [search, setSearch] = useState('');
 
   const handleGetInvoice = async () => {
     const data = await getAllInvoices(true, dispatch);
@@ -54,7 +53,6 @@ export function InvoiceView() {
     if (!text) return '';
     return text.charAt(0).toUpperCase() + text.slice(1);
   };
-  
 
   const handleExport = (invoice: any) => {
     const doc = new jsPDF();
@@ -74,6 +72,10 @@ export function InvoiceView() {
     handleGetInvoice();
   }, []);
 
+  const filteredData = invoices.filter((d) =>
+    d.appointment.customer_name.toLowerCase().includes(search)
+  );
+
   return (
     <DashboardContent>
       <Box
@@ -86,6 +88,15 @@ export function InvoiceView() {
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
           Invoices
         </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', marginRight: '40px' }}>
+          <TextField
+            label="Search"
+            variant="outlined"
+            size="small"
+            value={search}
+            onChange={(e) => setSearch(e.target.value.toLowerCase())}
+          />
+        </Box>
       </Box>
 
       <Card>
@@ -112,7 +123,7 @@ export function InvoiceView() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {invoices
+                {filteredData
                   ?.slice(
                     table.page * table.rowsPerPage,
                     table.page * table.rowsPerPage + table.rowsPerPage
@@ -122,9 +133,7 @@ export function InvoiceView() {
                       <TableCell>{invoice?.appointment.customer_name}</TableCell>
                       <TableCell>{invoice?.total_amount}</TableCell>
                       <TableCell>{capitalizeFirstLetter(invoice?.payment_method)}</TableCell>
-                      <TableCell>
-                        {new Date(invoice?.createdAt).toLocaleString('vi-VN')}
-                      </TableCell>
+                      <TableCell>{new Date(invoice?.createdAt).toLocaleString('vi-VN')}</TableCell>
                       <TableCell>
                         <Button
                           sx={{ minWidth: '80px', marginTop: '4px' }}

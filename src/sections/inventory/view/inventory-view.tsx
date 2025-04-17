@@ -49,6 +49,7 @@ export function InventoryView() {
   const [openEditForm, setEditOpenForm] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  const [search, setSearch] = useState('');
   const [newInventory, setNewInventory] = useState({
     item_name: '',
     item_image: '',
@@ -158,10 +159,7 @@ export function InventoryView() {
   const handleDelete = async (inventory: any) => {
     console.log('inventoryid', inventory._id);
     setInventories((prevInventories) =>
-      prevInventories.filter(
-        (s: any) =>
-          inventory.item_name !== s.item_name
-      )
+      prevInventories.filter((s: any) => inventory.item_name !== s.item_name)
     );
 
     try {
@@ -182,7 +180,6 @@ export function InventoryView() {
     handleGetAllInventory();
   }, []);
 
-
   const handleOpenEditQty = (inventory: any) => {
     setEditInventory({
       inventory_id: inventory?._id,
@@ -197,32 +194,32 @@ export function InventoryView() {
     setNewQuantity(inventory.quantity);
     setOpenEditQtyDialog(true);
   };
-  
+
   const handleCloseEditQty = () => {
     setOpenEditQtyDialog(false);
     setSelectedInventory(null);
   };
-  
+
   const handleSaveNewQuantity = async () => {
     if (!selectedInventory) return;
-  
+
     try {
-        await updateInventory(
+      await updateInventory(
         accessToken,
-        { ...editInventory, quantity: newQuantity, inventory_id: selectedInventory},
+        { ...editInventory, quantity: newQuantity, inventory_id: selectedInventory },
         dispatch,
         navigate,
         axios
       );
-  
+
       await handleGetAllInventory();
-  
+
       setOpenEditQtyDialog(false);
     } catch (error) {
       console.error('Error updating quantity:', error);
     }
   };
-  
+
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [inventoryToDelete, setInventoryToDelete] = useState<any>(null);
 
@@ -244,14 +241,13 @@ export function InventoryView() {
     }
   };
 
+  const filteredData = inventories.filter((d) => d.item_name.toLowerCase().includes(search));
+
   return (
     <DashboardContent>
-
       <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
         <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          Are you sure you want to delete this inventory item?
-        </DialogContent>
+        <DialogContent>Are you sure you want to delete this inventory item?</DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
           <Button onClick={handleConfirmDelete} color="error" variant="contained">
@@ -350,83 +346,83 @@ export function InventoryView() {
             onChange={(e) => setNewQuantity(e.target.value)}
           />
         </DialogContent>
-        <DialogActions style={{marginRight: "16px"}}>
+        <DialogActions style={{ marginRight: '16px' }}>
           <Button onClick={handleCloseEditQty}>Cancel</Button>
           <Button onClick={handleSaveNewQuantity} variant="contained" color="primary">
             Save
           </Button>
         </DialogActions>
       </Dialog>
-      
+
       <Dialog open={openEditForm} onClose={handleCloseEditForm}>
         <DialogTitle>Edit Inventory</DialogTitle>
         <DialogContent>
-        <Box sx={{ textAlign: 'center', mb: 2 }}>
-          <img
-            src={editImageFile ? URL.createObjectURL(editImageFile) : editInventory?.item_image}
-            alt={editInventory?.item_name}
-            width="100"
-            height="100"
-            style={{ borderRadius: '8px' }}
+          <Box sx={{ textAlign: 'center', mb: 2 }}>
+            <img
+              src={editImageFile ? URL.createObjectURL(editImageFile) : editInventory?.item_image}
+              alt={editInventory?.item_name}
+              width="100"
+              height="100"
+              style={{ borderRadius: '8px' }}
+            />
+          </Box>
+
+          <TextField
+            sx={{ marginTop: '12px' }}
+            label="Name"
+            fullWidth
+            value={editInventory?.item_name || ''}
+            onChange={(e) => setEditInventory({ ...editInventory, item_name: e.target.value })}
           />
-        </Box>
 
-        <TextField
-          sx={{ marginTop: '12px' }}
-          label="Name"
-          fullWidth
-          value={editInventory?.item_name || ''}
-          onChange={(e) => setEditInventory({ ...editInventory, item_name: e.target.value })}
-        />
+          <TextField
+            sx={{ marginTop: '12px' }}
+            label="Category"
+            fullWidth
+            value={editInventory?.item_category || ''}
+            onChange={(e) => setEditInventory({ ...editInventory, item_category: e.target.value })}
+          />
 
-        <TextField
-          sx={{ marginTop: '12px' }}
-          label="Category"
-          fullWidth
-          value={editInventory?.item_category || ''}
-          onChange={(e) => setEditInventory({ ...editInventory, item_category: e.target.value })}
-        />
+          <TextField
+            sx={{ marginTop: '12px' }}
+            label="Quantity"
+            type="number"
+            fullWidth
+            value={editInventory?.quantity || ''}
+            onChange={(e) => setEditInventory({ ...editInventory, quantity: e.target.value })}
+          />
 
-        <TextField
-          sx={{ marginTop: '12px' }}
-          label="Quantity"
-          type="number"
-          fullWidth
-          value={editInventory?.quantity || ''}
-          onChange={(e) => setEditInventory({ ...editInventory, quantity: e.target.value })}
-        />
+          <TextField
+            sx={{ marginTop: '12px' }}
+            label="Unit Price"
+            type="number"
+            fullWidth
+            value={editInventory?.unit_price || ''}
+            onChange={(e) => setEditInventory({ ...editInventory, unit_price: e.target.value })}
+          />
 
-        <TextField
-          sx={{ marginTop: '12px' }}
-          label="Unit Price"
-          type="number"
-          fullWidth
-          value={editInventory?.unit_price || ''}
-          onChange={(e) => setEditInventory({ ...editInventory, unit_price: e.target.value })}
-        />
+          <TextField
+            sx={{ marginTop: '12px' }}
+            label="Supplier"
+            fullWidth
+            value={editInventory?.supplier || ''}
+            onChange={(e) => setEditInventory({ ...editInventory, supplier: e.target.value })}
+          />
 
-        <TextField
-          sx={{ marginTop: '12px' }}
-          label="Supplier"
-          fullWidth
-          value={editInventory?.supplier || ''}
-          onChange={(e) => setEditInventory({ ...editInventory, supplier: e.target.value })}
-        />
-
-        <TextField
-          sx={{ marginTop: '12px' }}
-          type="file"
-          fullWidth
-          InputLabelProps={{ shrink: true }}
-          inputProps={{ accept: 'image/*' }}
-          onChange={(e) => {
-            const fileInput = e.target as HTMLInputElement;
-            if (fileInput.files && fileInput.files[0]) {
-              setEditImageFile(fileInput.files[0]);
-            }
-          }}
-        />
-      </DialogContent>
+          <TextField
+            sx={{ marginTop: '12px' }}
+            type="file"
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            inputProps={{ accept: 'image/*' }}
+            onChange={(e) => {
+              const fileInput = e.target as HTMLInputElement;
+              if (fileInput.files && fileInput.files[0]) {
+                setEditImageFile(fileInput.files[0]);
+              }
+            }}
+          />
+        </DialogContent>
         <DialogActions sx={{ mr: 2 }}>
           <Button onClick={handleCloseEditForm}>Cancel</Button>
           <Button onClick={handleSaveEdit} variant="contained" color="primary">
@@ -445,6 +441,15 @@ export function InventoryView() {
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
           Inventories
         </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', marginRight: '40px' }}>
+          <TextField
+            label="Search"
+            variant="outlined"
+            size="small"
+            value={search}
+            onChange={(e) => setSearch(e.target.value.toLowerCase())}
+          />
+        </Box>
         <Button
           variant="contained"
           color="inherit"
@@ -460,57 +465,85 @@ export function InventoryView() {
         <Scrollbar>
           <TableContainer sx={{ display: 'flex', justifyContent: 'center' }}>
             <Table sx={{ minWidth: 800 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell><b>Inventory Name</b></TableCell>
-                <TableCell><b>Category</b></TableCell>
-                <TableCell><b>Quantity</b></TableCell>
-                <TableCell><b>Unit Price</b></TableCell>
-                <TableCell><b>Supplier</b></TableCell>
-                <TableCell><b>Image</b></TableCell>
-                <TableCell><b>Actions</b></TableCell>
-              </TableRow>
-            </TableHead>
+              <TableHead>
+                <TableRow>
+                  <TableCell>
+                    <b>Inventory Name</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Category</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Quantity</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Unit Price</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Supplier</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Image</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Actions</b>
+                  </TableCell>
+                </TableRow>
+              </TableHead>
 
-            <TableBody>
-              {inventories?.slice(table.page * table.rowsPerPage, table.page * table.rowsPerPage + table.rowsPerPage)
-                .map((inventory) => (
-                  <TableRow key={inventory?._id}>
-                    <TableCell>{inventory.item_name}</TableCell>
-                    <TableCell>{inventory.item_category}</TableCell>
-                    <TableCell>{inventory.quantity}</TableCell>
-                    <TableCell>{inventory.unit_price}</TableCell>
-                    <TableCell>{inventory.supplier}</TableCell>
-                    <TableCell>
-                      <img
-                        src={inventory.item_image}
-                        alt={inventory.item_name}
-                        width="50"
-                        height="50"
-                        style={{ borderRadius: '4px' }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        sx={{ marginRight: '12px', minWidth: '80px' }}
-                        variant="contained"
-                        color="primary"
-                        onClick={() => handleOpenEditForm(inventory)}>Edit</Button>
-                      <Button
-                        sx={{ marginRight: '12px', minWidth: '80px' }}
-                        variant="contained"
-                        color="error" 
-                        onClick={() => {handleAskDelete(inventory)}}>Delete</Button>
-                      <Button
-                        sx={{ marginRight: '12px', minWidth: '80px' }}
-                        variant="contained"
-                        color="warning"
-                        onClick={() => handleOpenEditQty(inventory)}>Stock in</Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-
+              <TableBody>
+                {filteredData
+                  ?.slice(
+                    table.page * table.rowsPerPage,
+                    table.page * table.rowsPerPage + table.rowsPerPage
+                  )
+                  .map((inventory) => (
+                    <TableRow key={inventory?._id}>
+                      <TableCell>{inventory.item_name}</TableCell>
+                      <TableCell>{inventory.item_category}</TableCell>
+                      <TableCell>{inventory.quantity}</TableCell>
+                      <TableCell>{inventory.unit_price}</TableCell>
+                      <TableCell>{inventory.supplier}</TableCell>
+                      <TableCell>
+                        <img
+                          src={inventory.item_image}
+                          alt={inventory.item_name}
+                          width="50"
+                          height="50"
+                          style={{ borderRadius: '4px' }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          sx={{ marginRight: '12px', minWidth: '80px' }}
+                          variant="contained"
+                          color="primary"
+                          onClick={() => handleOpenEditForm(inventory)}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          sx={{ marginRight: '12px', minWidth: '80px' }}
+                          variant="contained"
+                          color="error"
+                          onClick={() => {
+                            handleAskDelete(inventory);
+                          }}
+                        >
+                          Delete
+                        </Button>
+                        <Button
+                          sx={{ marginRight: '12px', minWidth: '80px' }}
+                          variant="contained"
+                          color="warning"
+                          onClick={() => handleOpenEditQty(inventory)}
+                        >
+                          Stock in
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
             </Table>
           </TableContainer>
         </Scrollbar>

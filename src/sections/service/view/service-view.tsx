@@ -47,6 +47,7 @@ export function ServiceView() {
   const [services, setServices] = useState<any[]>([]);
   const [openCreateForm, setCreateOpenForm] = useState(false);
   const [openEditForm, setEditOpenForm] = useState(false);
+  const [search, setSearch] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [newService, setNewService] = useState({
@@ -195,13 +196,13 @@ export function ServiceView() {
     handleGetAllService();
   }, []);
 
+  const filteredData = services.filter((d) => d.service_name.toLowerCase().includes(search));
+
   return (
     <DashboardContent>
       <Dialog open={confirmDeleteOpen} onClose={() => setConfirmDeleteOpen(false)}>
         <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          Are you sure you want to delete this service?
-        </DialogContent>
+        <DialogContent>Are you sure you want to delete this service?</DialogContent>
         <DialogActions>
           <Button onClick={() => setConfirmDeleteOpen(false)}>Cancel</Button>
           <Button onClick={handleConfirmDelete} color="error" variant="contained">
@@ -349,6 +350,15 @@ export function ServiceView() {
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
           Services
         </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', marginRight: '40px' }}>
+          <TextField
+            label="Search"
+            variant="outlined"
+            size="small"
+            value={search}
+            onChange={(e) => setSearch(e.target.value.toLowerCase())}
+          />
+        </Box>
         <Button
           variant="contained"
           color="inherit"
@@ -390,7 +400,7 @@ export function ServiceView() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {services
+                {filteredData
                   ?.slice(
                     table.page * table.rowsPerPage,
                     table.page * table.rowsPerPage + table.rowsPerPage

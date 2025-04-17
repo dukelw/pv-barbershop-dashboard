@@ -33,6 +33,7 @@ export function RedemptionView() {
   const dispatch = useDispatch();
   const table = useTable();
   const [redemptions, setRedemptions] = useState<any[]>([]);
+  const [search, setSearch] = useState('');
 
   const handleGetRedemption = async () => {
     const data = await getAllRedemptions(dispatch);
@@ -65,6 +66,8 @@ export function RedemptionView() {
     handleGetRedemption();
   }, []);
 
+  const filteredData = redemptions.filter((d) => d.user.user_name.toLowerCase().includes(search));
+
   return (
     <DashboardContent>
       <Box
@@ -77,6 +80,15 @@ export function RedemptionView() {
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
           Redemptions
         </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', marginRight: '40px' }}>
+          <TextField
+            label="Search"
+            variant="outlined"
+            size="small"
+            value={search}
+            onChange={(e) => setSearch(e.target.value.toLowerCase())}
+          />
+        </Box>
       </Box>
 
       <Card>
@@ -103,7 +115,7 @@ export function RedemptionView() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {redemptions
+                {filteredData
                   ?.slice(
                     table.page * table.rowsPerPage,
                     table.page * table.rowsPerPage + table.rowsPerPage
