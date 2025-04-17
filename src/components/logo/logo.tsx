@@ -34,9 +34,9 @@ export function Logo({
 
   // Đường dẫn đến logo của bạn
   const singleLogoUrl =
-    'https://res.cloudinary.com/lewisshop/image/upload/v1743512129/toeic/answers/1743512126263-Logo.png.png';
+    'https://res.cloudinary.com/lewisshop/image/upload/v1744903345/pvbarbershop/1744903340616-logo.png.png';
   const fullLogoUrl =
-    'https://res.cloudinary.com/lewisshop/image/upload/v1743512129/toeic/answers/1743512126263-Logo.png.png';
+    'https://res.cloudinary.com/lewisshop/image/upload/v1744903345/pvbarbershop/1744903340616-logo.png.png';
 
   return (
     <LogoRoot
@@ -47,8 +47,8 @@ export function Logo({
       className={mergeClasses([logoClasses.root, className])}
       sx={[
         {
-          width: 40,
-          height: 40,
+          width: 80,
+          height: 80,
           ...(!isSingle && { width: 102, height: 36 }),
           ...(disabled && { pointerEvents: 'none' }),
         },

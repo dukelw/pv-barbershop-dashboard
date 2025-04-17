@@ -40,6 +40,7 @@ export function GiftView() {
   const userID = Cookie.get('_id');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [search, setSearch] = useState('');
   const table = useTable();
   const [gifts, setGifts] = useState<any[]>([]);
   const [openCreateForm, setCreateOpenForm] = useState(false);
@@ -184,6 +185,8 @@ export function GiftView() {
   useEffect(() => {
     handleGetAllGift();
   }, []);
+
+  const filteredData = gifts.filter((d) => d.name.toLowerCase().includes(search));
 
   return (
     <DashboardContent>
@@ -406,6 +409,15 @@ export function GiftView() {
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
           Gifts
         </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', marginRight: '40px' }}>
+          <TextField
+            label="Search"
+            variant="outlined"
+            size="small"
+            value={search}
+            onChange={(e) => setSearch(e.target.value.toLowerCase())}
+          />
+        </Box>
         <Button
           variant="contained"
           color="inherit"
@@ -453,7 +465,7 @@ export function GiftView() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {gifts
+                {filteredData
                   ?.slice(
                     table.page * table.rowsPerPage,
                     table.page * table.rowsPerPage + table.rowsPerPage

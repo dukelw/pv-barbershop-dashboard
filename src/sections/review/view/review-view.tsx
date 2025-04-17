@@ -48,6 +48,7 @@ export function ReviewView() {
   const navigate = useNavigate();
   const table = useTable();
   const [reviews, setReviews] = useState<any[]>([]);
+  const [search, setSearch] = useState('');
 
   const handleGetAllReview = async () => {
     const data = await getAllReviewsOfBarber(userID, dispatch);
@@ -59,12 +60,23 @@ export function ReviewView() {
     handleGetAllReview();
   }, []);
 
+  const filteredData = reviews.filter((d) => d.customer.toLowerCase().includes(search));
+
   return (
     <DashboardContent>
       <Box sx={{ mb: 5, display: 'flex', alignItems: 'center' }}>
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
           Reviews
         </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', marginRight: '40px' }}>
+          <TextField
+            label="Search"
+            variant="outlined"
+            size="small"
+            value={search}
+            onChange={(e) => setSearch(e.target.value.toLowerCase())}
+          />
+        </Box>
       </Box>
 
       <Card>
@@ -73,23 +85,35 @@ export function ReviewView() {
             <Table sx={{ minWidth: 800 }}>
               <TableHead>
                 <TableRow>
-                  <TableCell><b>Customer</b></TableCell>
-                  <TableCell><b>Services</b></TableCell>
-                  <TableCell><b>Rating</b></TableCell>
-                  <TableCell><b>Comment</b></TableCell>
-                  <TableCell><b>Created At</b></TableCell>
+                  <TableCell>
+                    <b>Customer</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Services</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Rating</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Comment</b>
+                  </TableCell>
+                  <TableCell>
+                    <b>Created At</b>
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {reviews?.slice(table.page * table.rowsPerPage, table.page * table.rowsPerPage + table.rowsPerPage)
+                {filteredData
+                  ?.slice(
+                    table.page * table.rowsPerPage,
+                    table.page * table.rowsPerPage + table.rowsPerPage
+                  )
                   .map((review) => (
                     <TableRow key={review._id}>
                       <TableCell>{review.customer}</TableCell>
                       <TableCell>
                         {review.service?.length > 0 ? (
-                          review.service.map((s: any) => (
-                            <div key={s._id}>• {s.service_name}</div>
-                          ))
+                          review.service.map((s: any) => <div key={s._id}>• {s.service_name}</div>)
                         ) : (
                           <i>Not specified</i>
                         )}
