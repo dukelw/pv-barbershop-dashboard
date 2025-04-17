@@ -19,6 +19,7 @@ import {
   TableRow,
   TableCell,
   TableHead,
+  Avatar,
 } from '@mui/material';
 import { DashboardContent } from 'src/layouts/dashboard';
 
@@ -26,44 +27,54 @@ import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { contactAboutRedemptionViaEmail, getAllRedemptions } from 'src/redux/apiRequest';
-import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import Cookie from 'js-cookie';
+// import { getSalary } from 'src/redux/apiRequest';
 
-export function RedemptionView() {
+// PDF export
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { getAllSalary } from 'src/redux/apiRequest';
+
+export function SalaryView() {
+  const currentUser = useSelector((state: any) => state.user.signin.currentUser);
+  const accessToken = Cookie.get('access_token');
+  const userID = Cookie.get('_id');
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const table = useTable();
-  const [redemptions, setRedemptions] = useState<any[]>([]);
+  const [salaries, setSalarys] = useState<any[]>([]);
+  const today = new Date();
+  const [month, setMonth] = useState(today.getMonth() + 1); // JS: 0-based month
+  const [year, setYear] = useState(today.getFullYear());
 
-  const handleGetRedemption = async () => {
-    const data = await getAllRedemptions(dispatch);
-    console.log(data);
-    setRedemptions(data);
+  const handleGetSalary = async (selectedMonth = month, selectedYear = year) => {
+    const data = await getAllSalary(selectedMonth, selectedYear, dispatch);
+    setSalarys(data?.metadata);
   };
 
-  const handleContact = async (redemption: any) => {
-    const email = redemption?.user?.user_email;
-    const address = redemption?.user?.user_address;
-    const giftName = redemption?.gift?.name;
-    const userName = redemption?.user?.user_name;
+  const capitalizeFirstLetter = (text: string) => {
+    if (!text) return '';
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
 
-    try {
-      await contactAboutRedemptionViaEmail({
-        to: email,
-        userName,
-        address,
-        giftName,
-      });
+  const handleExport = (staff: any) => {
+    const doc = new jsPDF();
 
-      toast.success('Send mail successfully!');
-    } catch (error) {
-      toast.error('Lỗi khi gửi mail!');
-      console.error(error);
-    }
+    doc.setFontSize(16);
+    doc.text('SALARY SLIP', 80, 20);
+
+    doc.setFontSize(12);
+    doc.text(`Name: ${staff?.user_name}`, 14, 35);
+    doc.text(`Role: ${capitalizeFirstLetter(staff?.role)}`, 14, 45);
+    doc.text(`Salary: ${staff?.salary?.toLocaleString('vi-VN')} VND`, 14, 55);
+
+    doc.save(`salary_${staff?.user_name}.pdf`);
   };
 
   useEffect(() => {
-    handleGetRedemption();
-  }, []);
+    handleGetSalary();
+  }, [month, year]);
 
   return (
     <DashboardContent>
@@ -75,8 +86,28 @@ export function RedemptionView() {
         }}
       >
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Redemptions
+          Salary
         </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+          <TextField
+            label="Month"
+            type="number"
+            size="small"
+            inputProps={{ min: 1, max: 12 }}
+            value={month}
+            onChange={(e) => setMonth(Number(e.target.value))}
+          />
+          <TextField
+            label="Year"
+            type="number"
+            size="small"
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+          />
+          <Button variant="outlined" onClick={() => handleGetSalary()}>
+            Filter
+          </Button>
+        </Box>
       </Box>
 
       <Card>
@@ -86,16 +117,16 @@ export function RedemptionView() {
               <TableHead>
                 <TableRow>
                   <TableCell>
-                    <b>Customer</b>
+                    <b>Avatar</b>
                   </TableCell>
                   <TableCell>
-                    <b>Gift</b>
+                    <b>Name</b>
                   </TableCell>
                   <TableCell>
-                    <b>Point</b>
+                    <b>Role</b>
                   </TableCell>
                   <TableCell>
-                    <b>Redeemed At</b>
+                    <b>Salary (VND)</b>
                   </TableCell>
                   <TableCell>
                     <b>Actions</b>
@@ -103,59 +134,27 @@ export function RedemptionView() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {redemptions
+                {salaries
                   ?.slice(
                     table.page * table.rowsPerPage,
                     table.page * table.rowsPerPage + table.rowsPerPage
                   )
-                  ?.map((redemption) => (
-                    <TableRow key={redemption?._id}>
+                  ?.map((staff) => (
+                    <TableRow key={staff?.user_id}>
                       <TableCell>
-                        <Box sx={{ mt: 2 }}>
-                          <Card
-                            key={redemption?.user?._id}
-                            sx={{ display: 'flex', alignItems: 'center', mb: 2 }}
-                          >
-                            <img
-                              src={redemption?.user?.user_avatar}
-                              alt={redemption?.user?.user_name}
-                              width="40"
-                              height="40"
-                              style={{ borderRadius: '50%', marginRight: '10px' }}
-                            />
-                            <Typography>{redemption?.user?.user_name}</Typography>
-                          </Card>
-                        </Box>
+                        <Avatar alt={staff?.user_name} src={staff?.user_avatar} />
                       </TableCell>
-                      <TableCell>
-                        <Box sx={{ mt: 2 }}>
-                          <Card
-                            key={redemption?.gift?._id}
-                            sx={{ display: 'flex', alignItems: 'center', mb: 2 }}
-                          >
-                            <img
-                              src={redemption?.gift?.image}
-                              alt={redemption?.gift?.name}
-                              width="40"
-                              height="40"
-                              style={{ borderRadius: '50%', marginRight: '10px' }}
-                            />
-                            <Typography>{redemption?.gift?.name}</Typography>
-                          </Card>
-                        </Box>
-                      </TableCell>
-                      <TableCell>{redemption?.points_used}</TableCell>
-                      <TableCell>
-                        {new Date(redemption?.redeemed_at).toLocaleString('vi-VN')}
-                      </TableCell>
+                      <TableCell>{staff?.user_name}</TableCell>
+                      <TableCell>{capitalizeFirstLetter(staff?.role)}</TableCell>
+                      <TableCell>{staff?.salary?.toLocaleString('vi-VN')} VND</TableCell>
                       <TableCell>
                         <Button
                           sx={{ minWidth: '80px', marginTop: '4px' }}
                           variant="contained"
                           color="primary"
-                          onClick={() => handleContact(redemption)}
+                          onClick={() => handleExport(staff)}
                         >
-                          Contact
+                          Export
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -168,7 +167,7 @@ export function RedemptionView() {
         <TablePagination
           component="div"
           page={table.page}
-          count={redemptions?.length}
+          count={salaries?.length}
           rowsPerPage={table.rowsPerPage}
           onPageChange={table.onChangePage}
           rowsPerPageOptions={[5, 10, 25]}

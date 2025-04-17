@@ -237,6 +237,7 @@ import {
   updateDiscountStart,
   updateDiscountSuccess,
 } from './discountSlice';
+import { getAllSalaryFailure, getAllSalaryStart, getAllSalarySuccess } from './salarySlice';
 
 const REACT_APP_BASE_URL = import.meta.env.VITE_REACT_APP_BASE_URL;
 
@@ -1676,3 +1677,52 @@ export const deleteDiscount = async (accessToken, ID, dispatch) => {
 };
 
 // End discount
+
+// Start salary
+
+export const getAllSalary = async (month, year, dispatch) => {
+  dispatch(getAllSalaryStart());
+  try {
+    const res = await axios.get(`${REACT_APP_BASE_URL}salary?month=${month}&year=${year}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    dispatch(getAllSalarySuccess(res.data));
+    return res.data;
+  } catch (error) {
+    console.error('Error fetching answer:', error);
+    dispatch(getAllSalaryFailure());
+  }
+};
+
+// End salary
+
+// Start contact
+
+export const contactViaEmail = async (data) => {
+  try {
+    await axios.post(`${REACT_APP_BASE_URL}contact`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error) {
+    console.error('Failed to send contact email:', error);
+  }
+};
+
+export const contactAboutRedemptionViaEmail = async (data) => {
+  try {
+    const res = await axios.post(`${REACT_APP_BASE_URL}contact/redemption`, data, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return res;
+  } catch (error) {
+    console.error('Failed to send contact email:', error);
+  }
+};
+
+// End contact

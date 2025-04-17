@@ -31,6 +31,7 @@ export const InvoicePage = lazy(() => import('src/pages/invoice'));
 export const ReviewPage = lazy(() => import('src/pages/review'));
 export const RedemptionPage = lazy(() => import('src/pages/redemption'));
 export const DiscountPage = lazy(() => import('src/pages/discount'));
+export const SalaryPage = lazy(() => import('src/pages/salary'));
 export const Page404 = lazy(() => import('src/pages/page-not-found'));
 export const ThankYouPage = lazy(() => import('src/pages/thankyou'));
 
@@ -65,6 +66,14 @@ const receptionistLoader = () => {
 const staffLoader = () => {
   const userRole = Cookie.get('user_role');
   if (userRole !== 'staff') {
+    return redirect('/404');
+  }
+  return null;
+};
+
+const adminLoader = () => {
+  const userRole = Cookie.get('user_role');
+  if (userRole !== 'admin') {
     return redirect('/404');
   }
   return null;
@@ -106,6 +115,7 @@ export const routesSection: RouteObject[] = [
       { path: 'gift', element: <GiftPage />, loader: receptionistAndAdminLoader },
       { path: 'redemption', element: <RedemptionPage />, loader: receptionistAndAdminLoader },
       { path: 'discount', element: <DiscountPage />, loader: receptionistLoader },
+      { path: 'salary', element: <SalaryPage />, loader: adminLoader },
     ],
   },
   {
