@@ -196,7 +196,7 @@ export function AppointmentView() {
           startIcon={<Iconify icon="mingcute:add-line" />}
           onClick={handleOpenForm}
         >
-          New appointments
+          New appointment
         </Button>
       </Box>
 

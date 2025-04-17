@@ -456,7 +456,7 @@ export function InventoryView() {
           startIcon={<Iconify icon="mingcute:add-line" />}
           onClick={handleOpenForm}
         >
-          New inventories
+          New inventory
         </Button>
       </Box>
 
