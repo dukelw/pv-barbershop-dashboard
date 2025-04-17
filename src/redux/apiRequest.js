@@ -636,25 +636,25 @@ export const markRead = async (accessToken, notificationID, dispatch) => {
   }
 };
 
-// export const deleteNotification = async (accessToken, notificationID, dispatch) => {
-//   dispatch(deleteNoti());
-//   try {
-//     await axiosJWT.delete(
-//       `${REACT_APP_BASE_URL}slider/notification/${notificationID}`,
-//       {},
-//       {
-//         headers: {
-//           "Content-Type": "application/json",
-//           authorization: `${accessToken}`,
-//         },
-//       }
-//     );
-//     dispatch(deleteSliderSuccess());
-//   } catch (error) {
-//     dispatch(deleteSliderFailure());
-//     return false;
-//   }
-// };
+export const deleteAllNotification = async (accessToken, userID, dispatch) => {
+  dispatch(deleteSliderStart());
+  try {
+    await axios.delete(
+      `${REACT_APP_BASE_URL}notification/delete-all/${userID}`,
+      {},
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          authorization: `${accessToken}`,
+        },
+      }
+    );
+    dispatch(deleteSliderSuccess());
+  } catch (error) {
+    dispatch(deleteSliderFailure());
+    return false;
+  }
+};
 
 // End notification
 
