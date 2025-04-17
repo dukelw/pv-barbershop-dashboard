@@ -58,6 +58,7 @@ export function DiscountView() {
   const [openEditForm, setEditOpenForm] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [openAssignUserForm, setAssignUserForm] = useState(false);
+  const [searchCode, setSearchCode] = useState('');
   const [newDiscount, setNewDiscount] = useState({
     code: '',
     description: '',
@@ -241,6 +242,8 @@ export function DiscountView() {
     handleGetAllDiscount();
     handleGetAllUser();
   }, []);
+
+  const filteredDiscounts = discounts.filter((d) => d.code.toUpperCase().includes(searchCode));
 
   return (
     <DashboardContent>
@@ -606,6 +609,15 @@ export function DiscountView() {
         <Typography variant="h4" sx={{ flexGrow: 1 }}>
           Discounts
         </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', marginRight: '40px' }}>
+          <TextField
+            label="Search by Code"
+            variant="outlined"
+            size="small"
+            value={searchCode}
+            onChange={(e) => setSearchCode(e.target.value.toUpperCase())}
+          />
+        </Box>
         <Button
           variant="contained"
           color="inherit"
@@ -653,7 +665,7 @@ export function DiscountView() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {discounts
+                {filteredDiscounts
                   ?.slice(
                     table.page * table.rowsPerPage,
                     table.page * table.rowsPerPage + table.rowsPerPage
