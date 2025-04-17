@@ -60,6 +60,7 @@
     "react-toastify": "^11.0.5",
     "redux-persist": "^6.0.0",
     "simplebar-react": "^3.3.0",
+    "socket": "^0.14.103",
     "socket.io-client": "^4.8.1",
     "toastify": "^2.0.1"
   },

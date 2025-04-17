@@ -6,43 +6,61 @@
 
 > Free React Admin Dashboard made with Material-UI components and React + Vite.js.
 
-## Pages
+# PVBarberShopDashboard
 
-- [Dashboard](https://free.minimals.cc/)
-- [Users](https://free.minimals.cc/user)
-- [Products](https://free.minimals.cc/products)
-- [Blog](https://free.minimals.cc/blog)
-- [Sign in](https://free.minimals.cc/sign-in)
-- [Not found](https://free.minimals.cc/404)
+PVBarberShopDashboard is a customized admin dashboard built upon the **Minimal UI (Free Version)** template. While we retained some of the original UI components, we have completely re-implemented all functional features for different user roles, including **barbers**, **receptionists**, and **admins**.
 
-## Quick start
+> 📊 The only part we reused entirely is the **statistics/dashboard UI**, but we have integrated it with our real-time backend data.
 
-- Clone the repo: `git clone https://github.com/minimal-ui-kit/material-kit-react.git`
-- Recommended: `Node.js v20.x`
-- **Install:** `npm i` or `yarn install`
-- **Start:** `npm run dev` or `yarn dev`
-- **Build:** `npm run build` or `yarn build`
-- Open browser: `http://localhost:3039`
-## Upgrade to PRO Version
+---
 
+## 🔧 Tech Stack
 
-| Minimal Free                | [Minimal Pro](https://material-ui.com/store/items/minimal-dashboard/)                                   |
-| :-------------------------- | :------------------------------------------------------------------------------------------------------ |
-| **6** Pages                 | **70+** Pages                                                                                           |
-| **Partial** theme customize | **Fully** theme customize                                                                               |
-| -                           | **Next.js** version                                                                                     |
-| -                           | **TypeScript** version (Standard Plus and Extended license)                                             |
-| -                           | Design **Figma** file (Standard Plus and Extended license)                                              |
-| -                           | Authentication with **Amplify**, **Auth0**, **JWT**, **Firebase** and **Supabase**                      |
-| -                           | Light/dark mode, right-to-left, form validation... ([+more components](https://minimals.cc/components)) |
-| -                           | Complete users flows                                                                                    |
-| -                           | 1 year of free updates / 6 months of technical support                                                  |
-| -                           | Learn more: [Package & license](https://docs.minimals.cc/package)                                       |
+- **React + Vite.js**
+- **Material UI (MUI)**
+- **Redux Toolkit**
+- **React Router**
+- **SCSS Modules**
+- **Axios**
 
-## License
+---
 
-Distributed under the [MIT](https://github.com/minimal-ui-kit/minimal.free/blob/main/LICENSE.md) license.
+## 📦 Features
 
-## Contact us
+- 🔐 Role-based access: Barber, Receptionist, Admin
+- ✂️ Barber booking schedule management
+- 🧾 Appointment history with service image upload
+- 📈 Real-time dashboard with customized statistics
+- 🗂️ Services and staff management
+- 📝 Custom authentication flow (replaced original)
 
-Email: support@minimals.cc
+---
+
+## 🧪 Project Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/dukelw/pvbarbershop-dashboard.git
+
+# Navigate to the project directory
+cd pvbarbershop-dashboard
+
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+
+# Open browser
+http://localhost:3039
+
+```
+---
+
+## 🌐 Credits
+This project uses the UI layout and structure from the Minimal UI (Free Version), created by minimals.cc.
+
+## 📜 License
+This project is licensed under the MIT License.
+
+You are free to use, modify, and distribute this project. However, please retain the original copyright notice from Minimal UI in accordance with the MIT license.
