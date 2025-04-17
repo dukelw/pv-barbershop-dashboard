@@ -40,6 +40,7 @@ export function SalaryView() {
   const currentUser = useSelector((state: any) => state.user.signin.currentUser);
   const accessToken = Cookie.get('access_token');
   const userID = Cookie.get('_id');
+  const userName = Cookie.get('user_name');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const table = useTable();
@@ -61,15 +62,67 @@ export function SalaryView() {
   const handleExport = (staff: any) => {
     const doc = new jsPDF();
 
-    doc.setFontSize(16);
+    // Title
+    doc.setFontSize(24);
+    doc.setTextColor(33, 37, 41);
+    doc.setFont('helvetica', 'bold');
     doc.text('SALARY SLIP', 80, 20);
 
-    doc.setFontSize(12);
-    doc.text(`Name: ${staff?.user_name}`, 14, 35);
-    doc.text(`Role: ${capitalizeFirstLetter(staff?.role)}`, 14, 45);
-    doc.text(`Salary: ${staff?.salary?.toLocaleString('vi-VN')} VND`, 14, 55);
+    // Company Info
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    doc.text('PV Barber Shop.', 14, 30);
+    doc.text('District 7', 14, 35);
+    doc.text('Ho Chi Minh City', 14, 40);
 
-    doc.save(`salary_${staff?.user_name}.pdf`);
+    // Staff Info Box
+    doc.setFont('helvetica', 'bold');
+    doc.setFillColor(230, 230, 230);
+    doc.rect(14, 50, 180, 10, 'F');
+    doc.text('STAFF INFORMATION', 16, 57);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    let y = 70;
+    doc.text(`Name:`, 16, y);
+    doc.text(`${staff?.user_name || 'N/A'}`, 60, y);
+
+    y += 10;
+    doc.text(`Role:`, 16, y);
+    doc.text(`${capitalizeFirstLetter(staff?.role) || 'N/A'}`, 60, y);
+
+    y += 10;
+    doc.text(`Salary:`, 16, y);
+    doc.text(`${staff?.salary?.toLocaleString('vi-VN')} VND`, 60, y);
+
+    y += 10;
+    doc.text(`Generated on:`, 16, y);
+    doc.text(`${new Date().toLocaleDateString('vi-VN')}`, 60, y);
+
+    // Signature
+    const signatureY = y + 30;
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(12);
+    doc.text('Authorized Signature', 14, signatureY);
+    doc.setFontSize(16);
+    doc.text(userName || 'PV Admin', 14, signatureY + 10);
+
+    // Footer
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 87, 34);
+    doc.text('CONFIDENTIAL', 14, 275);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    doc.text(
+      'This salary slip is confidential and intended solely for the staff mentioned above.',
+      14,
+      280
+    );
+
+    doc.save(`salary_${staff?.user_name || 'staff'}.pdf`);
   };
 
   useEffect(() => {
