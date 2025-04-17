@@ -34,7 +34,7 @@ export function ThankYouView() {
       const res = await updateAccumulatePoint(
         accessToken,
         data.metadata?.customer,
-        Math.floor(Number(amount) / 100),
+        Math.floor(Number(amount) / 1000),
         dispatch
       );
     }
