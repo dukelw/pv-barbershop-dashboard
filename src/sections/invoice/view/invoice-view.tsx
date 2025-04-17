@@ -38,6 +38,7 @@ export function InvoiceView() {
   const currentUser = useSelector((state: any) => state.user.signin.currentUser);
   const accessToken = Cookie.get('access_token');
   const userID = Cookie.get('_id');
+  const userName = Cookie.get('user_name');
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const table = useTable();
@@ -57,14 +58,110 @@ export function InvoiceView() {
   const handleExport = (invoice: any) => {
     const doc = new jsPDF();
 
-    doc.setFontSize(16);
-    doc.text('INVOICE', 80, 20);
+    // Title: INVOICE
+    doc.setFontSize(24);
+    doc.setTextColor(33, 37, 41);
+    doc.setFont('helvetica', 'bold');
+    doc.text('INVOICE', 14, 20);
 
+    // Company Info
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('PV Barber Shop.', 14, 30);
+    doc.text('District 7', 14, 35);
+    doc.text('Ho Chi Minh City', 14, 40);
+
+    // BILL TO
+    const customer = invoice?.appointment?.customer;
+    doc.setFont('helvetica', 'bold');
+    doc.text('BILL TO', 14, 55);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${customer?.user_name || invoice?.appointment?.customer_name || ''}`, 14, 60);
+    doc.text(`${customer?.user_phone || invoice?.appointment?.phone_number || ''}`, 14, 65);
+    doc.text(`${customer?.user_email || ''}`, 14, 70);
+
+    // INVOICE DETAILS
+    const rightCol = 130;
+    doc.setFont('helvetica', 'bold');
+    doc.text('INVOICE', rightCol, 30);
+    doc.text('INVOICE DATE', rightCol, 40);
+    doc.text('DUE DATE', rightCol, 50);
+
+    doc.setFont('helvetica', 'normal');
+    doc.text(invoice?._id || 'N/A', rightCol + 30, 30);
+    doc.text(new Date(invoice?.createdAt).toLocaleDateString('vi-VN'), rightCol + 30, 40);
+    doc.text(
+      new Date(invoice?.appointment?.appointment_end).toLocaleDateString('vi-VN'),
+      rightCol + 30,
+      50
+    );
+
+    // Table Header
+    doc.setFont('helvetica', 'bold');
+    doc.setFillColor(230, 230, 230);
+    doc.rect(14, 80, 180, 10, 'F');
+    doc.text('QTY', 16, 87);
+    doc.text('DESCRIPTION', 35, 87);
+    doc.text('UNIT PRICE', 120, 87);
+    doc.text('AMOUNT', 165, 87);
+
+    // Table Body
+    doc.setFont('helvetica', 'normal');
+    let startY = 95;
+    let total = 0;
+
+    invoice?.appointment?.service?.forEach((item: any) => {
+      const price = item?.service_price || 0;
+      total += price;
+
+      doc.text('1', 16, startY);
+      doc.text(item?.service_name || 'N/A', 35, startY);
+      doc.text(`${price.toLocaleString('vi-VN')} VND`, 120, startY);
+      doc.text(`${price.toLocaleString('vi-VN')} VND`, 165, startY);
+      startY += 10;
+    });
+
+    // Subtotal, Tax, Total
+    const subtotalY = startY + 10;
+    const tax = 0; // hoặc tự tính nếu có thuế
+    doc.text('Subtotal', 120, subtotalY);
+    doc.text(`${total.toLocaleString('vi-VN')} VND`, 188, subtotalY, {
+      align: 'right',
+    });
+
+    doc.text('Sales Tax', 120, subtotalY + 8);
+    doc.text(`${tax.toLocaleString('vi-VN')} VND`, 188, subtotalY + 8, {
+      align: 'right',
+    });
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('TOTAL', 120, subtotalY + 16);
+    doc.text(`${invoice?.total_amount?.toLocaleString('vi-VN')} VND`, 188, subtotalY + 16, {
+      align: 'right',
+    });
+
+    // Signature
+    doc.setFont('helvetica', 'italic');
     doc.setFontSize(12);
-    doc.text(`Customer: ${invoice?.appointment.customer_name}`, 14, 35);
-    doc.text(`Payment Method: ${invoice?.payment_method}`, 14, 45);
-    doc.text(`Created At: ${new Date(invoice?.createdAt).toLocaleString('vi-VN')}`, 14, 55);
-    doc.text(`Total Amount: ${invoice?.total_amount?.toLocaleString('vi-VN')} VND`, 14, 65);
+    doc.text('Authorized Signature', 14, subtotalY + 40);
+    doc.setFontSize(16);
+    doc.text(userName, 14, subtotalY + 50);
+
+    // Footer
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 87, 34);
+    doc.text('TERMS & CONDITIONS', 14, 270);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 0, 0);
+    doc.text(
+      'Should you have any inquiries or issues regarding this invoice, please do not hesitate to contact us.',
+      14,
+      275
+    );
+
+    // Save
     doc.save(`invoice_${invoice?._id}.pdf`);
   };
 
