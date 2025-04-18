@@ -3,7 +3,7 @@ import type { IconButtonProps } from '@mui/material/IconButton';
 import Cookies from 'js-cookie';
 import { useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link, redirect, useNavigate } from 'react-router-dom'
+import { Link, redirect, useNavigate } from 'react-router-dom';
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -59,7 +59,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
     Cookies.remove('user_email');
     Cookies.remove('user_name');
     Cookies.remove('user_role');
-    window.location.href = 'http://localhost:3000/logout';
+    window.location.href = `${import.meta.env.VITE_USER_BASE_URL}/logout`;
   };
 
   const handleClickItem = useCallback(
@@ -138,7 +138,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
             <MenuItem
               key={option.label}
               selected={option.href === pathname}
-              onClick={() => option.new? window.open(option.href): handleClickItem(option.href)}
+              onClick={() => (option.new ? window.open(option.href) : handleClickItem(option.href))}
             >
               {option.icon}
               {option.label}
