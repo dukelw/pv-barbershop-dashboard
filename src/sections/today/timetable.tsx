@@ -27,7 +27,7 @@ import {
 const hours = Array.from({ length: 15 }, (_, i) => `${i + 8}:00`); // 8h -> 22h
 
 export default function Timetable() {
-  const accessToken = Cookie.get('access_token');
+  const accessToken = Cookie.get('accessToken');
   const [appointments, setAppointments] = useState<any[]>([]);
   const [barbers, setBarbers] = useState<any[]>([]);
   const [currentDate, setCurrentDate] = useState(new Date());

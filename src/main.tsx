@@ -13,15 +13,6 @@ import { ErrorBoundary } from './routes/components';
 
 // ----------------------------------------------------------------------
 
-const userRole = Cookie.get('user_role');
-
-const protectedRoutesLoader = () => {
-  if (!['admin', 'staff', 'receptionist'].includes(userRole || '')) {
-    return redirect('/404');
-  }
-  return null;
-};
-
 const router = createBrowserRouter([
   {
     Component: () => (
@@ -34,7 +25,6 @@ const router = createBrowserRouter([
       {
         path: '/',
         element: <Outlet />,
-        loader: protectedRoutesLoader,
         children: [...routesSection],
       },
     ],
@@ -42,6 +32,21 @@ const router = createBrowserRouter([
 ]);
 
 const root = createRoot(document.getElementById('root')!);
+
+// Lấy query string từ URL
+const params = new URLSearchParams(window.location.search);
+
+// Nếu có accessToken trong URL, coi như là redirect từ trang đăng nhập
+if (params.has('accessToken') && params.has('refreshToken')) {
+  // Duyệt qua toàn bộ params và lưu vào cookie
+  params.forEach((value, key) => {
+    Cookie.set(key, value, { expires: 7 }); // Set cookie 7 ngày
+  });
+
+  // Optional: Xóa query params khỏi URL để gọn gàng
+  const newUrl = window.location.origin + window.location.pathname;
+  window.history.replaceState({}, document.title, newUrl);
+}
 
 root.render(
   <Provider store={store}>

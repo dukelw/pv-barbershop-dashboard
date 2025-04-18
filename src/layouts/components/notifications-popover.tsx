@@ -43,7 +43,7 @@ export type NotificationsPopoverProps = IconButtonProps & {
 
 export function NotificationsPopover({ sx, ...other }: NotificationsPopoverProps) {
   const userId = Cookie.get('_id');
-  const accessToken = Cookie.get('access_token');
+  const accessToken = Cookie.get('accessToken');
   const dispatch = useDispatch();
   const [notifications, setNotifications] = useState<any>(null);
 
@@ -72,7 +72,7 @@ export function NotificationsPopover({ sx, ...other }: NotificationsPopoverProps
 
   const handleDeleteNotification = async () => {
     await deleteAllNotification(accessToken, userId, dispatch);
-    handleGetNotification()
+    handleGetNotification();
   };
 
   const handleGetNotification = async () => {

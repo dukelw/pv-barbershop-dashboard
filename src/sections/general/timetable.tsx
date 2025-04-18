@@ -36,7 +36,7 @@ import socket from 'src/hooks/useSocker';
 const hours = Array.from({ length: 15 }, (_, i) => `${i + 8}:00`); // 8h -> 22h
 
 export default function Timetable() {
-  const accessToken = Cookie.get('access_token');
+  const accessToken = Cookie.get('accessToken');
   const receptionistName = Cookie.get('user_name');
   const userID = Cookie.get('_id');
   const [appointments, setAppointments] = useState<any[]>([]);

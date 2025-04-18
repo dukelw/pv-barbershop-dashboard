@@ -47,7 +47,7 @@ import { toast } from 'react-toastify';
 
 export function DiscountView() {
   const currentUser = useSelector((state: any) => state.user.signin.currentUser);
-  const accessToken = Cookie.get('access_token');
+  const accessToken = Cookie.get('accessToken');
   const userID = Cookie.get('_id');
   const dispatch = useDispatch();
   const navigate = useNavigate();

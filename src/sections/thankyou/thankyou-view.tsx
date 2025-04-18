@@ -21,7 +21,7 @@ import { RouterLink } from 'src/routes/components';
 export function ThankYouView() {
   const { id, amount, method } = useParams();
   const dispatch = useDispatch();
-  const accessToken = Cookie.get('access_token');
+  const accessToken = Cookie.get('accessToken');
 
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
