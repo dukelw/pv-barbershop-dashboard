@@ -446,7 +446,7 @@ export default function Timetable() {
                       borderBottom: '1px solid #eee',
                     }}
                   >
-                    {barberAppointments.map((apt: any) => {
+                    {barberAppointments?.map((apt: any) => {
                       const start = parseISO(apt.appointment_start);
                       const end = parseISO(apt.appointment_end);
 
@@ -519,6 +519,9 @@ export default function Timetable() {
         <DialogContent>
           <Typography variant="body2" gutterBottom>
             <strong>Name:</strong> {selectedAppointment?.customer_name}
+          </Typography>
+          <Typography variant="body2" gutterBottom>
+            <strong>Phone:</strong> {selectedAppointment?.phone_number}
           </Typography>
           <Typography variant="body2" gutterBottom>
             <strong>Time:</strong>{' '}
