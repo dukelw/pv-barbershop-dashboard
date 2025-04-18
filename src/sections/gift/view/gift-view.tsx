@@ -186,7 +186,7 @@ export function GiftView() {
     handleGetAllGift();
   }, []);
 
-  const filteredData = gifts.filter((d) => d.name.toLowerCase().includes(search));
+  const filteredData = gifts?.filter((d) => d?.name?.toLowerCase().includes(search));
 
   return (
     <DashboardContent>
@@ -415,7 +415,7 @@ export function GiftView() {
             variant="outlined"
             size="small"
             value={search}
-            onChange={(e) => setSearch(e.target.value.toLowerCase())}
+            onChange={(e) => setSearch(e.target.value?.toLowerCase())}
           />
         </Box>
         <Button
