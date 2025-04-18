@@ -48,7 +48,7 @@ export default function Timetable() {
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const currentUser = useSelector((state: any) => state.user.signin.currentUser);
   const [receptionists, setReceptionists] = useState<any>([]);
-  const accessToken = Cookie.get('access_token');
+  const accessToken = Cookie.get('accessToken');
   const userID = Cookie.get('_id');
   const barberName = Cookie.get('user_name');
   const dispatch = useDispatch();

@@ -10,7 +10,7 @@ import { applyDiscount, getAppointment, getUserDiscounts } from 'src/redux/apiRe
 import { QRCodeSVG } from 'qrcode.react';
 
 export function PaymentView() {
-  const accessToken = Cookie.get('access_token');
+  const accessToken = Cookie.get('accessToken');
   const { id } = useParams();
   const dispatch = useDispatch();
   const [appointment, setAppointment] = useState<any>(null);

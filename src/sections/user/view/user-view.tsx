@@ -11,13 +11,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TablePagination from '@mui/material/TablePagination';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
-import {
-  TextField,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from '@mui/material';
+import { TextField, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 
 import { _users } from 'src/_mock';
 import { DashboardContent } from 'src/layouts/dashboard';
@@ -40,7 +34,7 @@ import Cookie from 'js-cookie';
 
 export function UserView() {
   const table = useTable();
-  const accessToken = Cookie.get('access_token');
+  const accessToken = Cookie.get('accessToken');
   const userID = Cookie.get('_id');
   const dispatch = useDispatch();
   const { foundUsers, isFetching } = useSelector((state: any) => state.user.findAll);
@@ -56,9 +50,9 @@ export function UserView() {
     inputData: users || [],
     comparator: getComparator(table.order, table.orderBy),
     filterName,
-  });  
-  
-  const notFound = !dataFiltered.length && !!filterName
+  });
+
+  const notFound = !dataFiltered.length && !!filterName;
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [openCreateForm, setOpenCreateForm] = useState(false);
@@ -70,7 +64,7 @@ export function UserView() {
     user_password: '',
     user_role: '',
   });
-  
+
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<any>(null);
 
@@ -81,7 +75,7 @@ export function UserView() {
 
   const handleConfirmDelete = async () => {
     if (!userToDelete) return;
-  
+
     try {
       await banUser(accessToken, userID, userToDelete._id, dispatch, axios);
       await handleGetUser();
@@ -92,8 +86,9 @@ export function UserView() {
       setUserToDelete(null);
     }
   };
-  
-  const handleGetUser = async() => {const data = await findAllUser("", dispatch)
+
+  const handleGetUser = async () => {
+    const data = await findAllUser('', dispatch);
     setUsers(data?.metadata);
   };
   const handleOpenForm = () => setOpenCreateForm(true);
@@ -120,14 +115,14 @@ export function UserView() {
           user_avatar: imageData.img_url,
         }));
       }
-  
+
       const userToCreate = {
         ...newUser,
         user_avatar: imageUrl || newUser.user_avatar,
       };
-  
-      await createAccount({...userToCreate, user_avatar: imageUrl}, dispatch);
-  
+
+      await createAccount({ ...userToCreate, user_avatar: imageUrl }, dispatch);
+
       // Làm mới danh sách người dùng
       handleGetUser();
 
@@ -145,8 +140,10 @@ export function UserView() {
       console.error('Error creating user:', error);
     }
   };
-  
-  useEffect(() => {handleGetUser()}, [])
+
+  useEffect(() => {
+    handleGetUser();
+  }, []);
 
   return (
     <DashboardContent>
@@ -201,10 +198,10 @@ export function UserView() {
                 headLabel={[
                   { id: 'name', label: 'Name' },
                   { id: 'email', label: 'Email' },
-                  { id: 'gender', label: 'Gender'},
+                  { id: 'gender', label: 'Gender' },
                   { id: 'role', label: 'Role' },
                   { id: 'status', label: 'Status' },
-                  { id: 'action', label: "Action" },
+                  { id: 'action', label: 'Action' },
                 ]}
               />
               <TableBody>
@@ -336,7 +333,6 @@ export function UserView() {
           </Button>
         </DialogActions>
       </Dialog>
-
     </DashboardContent>
   );
 }
