@@ -36,6 +36,7 @@ import {
   updateService,
   uploadImage,
 } from 'src/redux/apiRequest';
+import { toast } from 'react-toastify';
 
 export function ServiceView() {
   const currentUser = useSelector((state: any) => state.user.signin.currentUser);
@@ -82,6 +83,10 @@ export function ServiceView() {
   const handleCloseEditForm = () => setEditOpenForm(false);
 
   const handleSubmit = async () => {
+    if (Number(newService.service_price) <= 0 || Number(newService.service_duration) <= 0) {
+      toast.error('Duration and price must be greater than 0');
+      return;
+    }
     let imageUrl = '';
     try {
       if (imageFile) {
@@ -120,6 +125,10 @@ export function ServiceView() {
   };
 
   const handleSaveEdit = async () => {
+    if (Number(editService.service_price) <= 0 || Number(editService.service_duration) <= 0) {
+      toast.error('Duration and price must be greater than 0');
+      return;
+    }
     let imageUrl = editService.service_image;
 
     try {
