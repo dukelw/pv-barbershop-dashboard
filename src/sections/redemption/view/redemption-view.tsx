@@ -24,9 +24,14 @@ import { DashboardContent } from 'src/layouts/dashboard';
 
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
+import Cookie from 'js-cookie';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { contactAboutRedemptionViaEmail, getAllRedemptions } from 'src/redux/apiRequest';
+import {
+  completeRedemption,
+  contactAboutRedemptionViaEmail,
+  getAllRedemptions,
+} from 'src/redux/apiRequest';
 import { toast } from 'react-toastify';
 
 export function RedemptionView() {
@@ -60,6 +65,12 @@ export function RedemptionView() {
       toast.error('Lỗi khi gửi mail!');
       console.error(error);
     }
+  };
+
+  const handleDelete = async (redemption: any) => {
+    const accessToken = Cookie.get('accessToken');
+    await completeRedemption(accessToken, redemption._id, dispatch);
+    await handleGetRedemption();
   };
 
   useEffect(() => {
@@ -168,6 +179,14 @@ export function RedemptionView() {
                           onClick={() => handleContact(redemption)}
                         >
                           Contact
+                        </Button>
+                        <Button
+                          sx={{ minWidth: '80px', marginTop: '4px', marginLeft: '8px' }}
+                          variant="contained"
+                          color="error"
+                          onClick={() => handleDelete(redemption)}
+                        >
+                          Delete
                         </Button>
                       </TableCell>
                     </TableRow>

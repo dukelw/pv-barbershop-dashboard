@@ -1574,6 +1574,23 @@ export const deleteGift = async (accessToken, ID, dispatch) => {
   }
 };
 
+export const completeRedemption = async (accessToken, ID, dispatch) => {
+  dispatch(deleteGiftStart());
+  try {
+    const res = await axios.delete(`${REACT_APP_BASE_URL}gift/redemption/${ID}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: `${accessToken}`,
+      },
+    });
+    dispatch(deleteGiftSuccess());
+    return res.data;
+  } catch (error) {
+    dispatch(deleteGiftFailure());
+    console.error('Failed to delete redemption:', error);
+  }
+};
+
 // End gift
 
 // Start discount

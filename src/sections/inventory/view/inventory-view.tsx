@@ -36,6 +36,7 @@ import {
   updateInventory,
   uploadImage,
 } from 'src/redux/apiRequest';
+import { toast } from 'react-toastify';
 
 export function InventoryView() {
   const currentUser = useSelector((state: any) => state.user.signin.currentUser);
@@ -89,6 +90,11 @@ export function InventoryView() {
   const handleCloseEditForm = () => setEditOpenForm(false);
 
   const handleSubmit = async () => {
+    if (Number(newInventory.quantity) <= 0 || Number(newInventory.unit_price) <= 0) {
+      toast.error('Quantity and number must be greater than 0');
+      return;
+    }
+
     let imageUrl = '';
     try {
       if (imageFile) {
@@ -128,6 +134,10 @@ export function InventoryView() {
   };
 
   const handleSaveEdit = async () => {
+    if (Number(editInventory.quantity) <= 0 || Number(editInventory.unit_price) <= 0) {
+      toast.error('Quantity and number must be greater than 0');
+      return;
+    }
     let imageUrl = editInventory.item_image;
 
     try {
@@ -201,6 +211,10 @@ export function InventoryView() {
   };
 
   const handleSaveNewQuantity = async () => {
+    if (Number(newQuantity) <= 0) {
+      toast.error('Quantity must be greater than 0');
+      return;
+    }
     if (!selectedInventory) return;
 
     try {
