@@ -153,13 +153,13 @@ export function AppointmentView() {
             {barbers.map((barber) => (
               <Card key={barber._id} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <img
-                  src={barber.user_avatar}
-                  alt={barber.user_name}
+                  src={barber.user_avatar || barber.avatar}
+                  alt={barber.user_name || barber.name}
                   width="40"
                   height="40"
                   style={{ borderRadius: '50%', marginRight: '10px' }}
                 />
-                <Typography>{barber.user_name}</Typography>
+                <Typography>{barber.user_name || barber.name}</Typography>
                 <Button
                   sx={{ marginLeft: 'auto' }}
                   variant="outlined"
@@ -261,13 +261,15 @@ export function AppointmentView() {
                             }}
                           >
                             <img
-                              src={appointment?.barber.user_avatar}
-                              alt={appointment?.barber.user_name}
+                              src={appointment?.barber.user_avatar || appointment?.barber.avatar}
+                              alt={appointment?.barber.user_name || appointment?.barber.name}
                               width="40"
                               height="40"
                               style={{ borderRadius: '50%', marginRight: '10px' }}
                             />
-                            <Typography>{appointment?.barber.user_name}</Typography>
+                            <Typography>
+                              {appointment?.barber.user_name || appointment?.barber.name}
+                            </Typography>
                           </Card>
                         ) : (
                           ''

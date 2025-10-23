@@ -51,11 +51,6 @@ export const navData: NavItem[] = [
           icon: <Person />,
         },
         {
-          title: 'Inventory',
-          path: '/inventories',
-          icon: <Inventory />,
-        },
-        {
           title: 'Invoice',
           path: '/invoices',
           icon: <ReceiptLong />,
@@ -78,11 +73,6 @@ export const navData: NavItem[] = [
           title: 'Appointment',
           path: '/appointments',
           icon: <CalendarToday />,
-        },
-        {
-          title: 'Inventory',
-          path: '/inventories',
-          icon: <Inventory />,
         },
         {
           title: 'Service',
