@@ -104,42 +104,42 @@ export function UserView() {
     }
   };
 
-  const handleSubmit = async () => {
-    let imageUrl = '';
-    try {
-      if (imageFile) {
-        const imageData = await uploadImage(imageFile, 'users', dispatch);
-        imageUrl = imageData.img_url;
-        setNewUser((prevState) => ({
-          ...prevState,
-          user_avatar: imageData.img_url,
-        }));
+    const handleSubmit = async () => {
+      let imageUrl = '';
+      try {
+        if (imageFile) {
+          const imageData = await uploadImage(imageFile, 'users', dispatch);
+          imageUrl = imageData.img_url;
+          setNewUser((prevState) => ({
+            ...prevState,
+            user_avatar: imageData.img_url,
+          }));
+        }
+
+        const userToCreate = {
+          ...newUser,
+          user_avatar: imageUrl || newUser.user_avatar,
+        };
+
+        await createAccount({ ...userToCreate, user_avatar: imageUrl }, dispatch);
+
+        // Làm mới danh sách người dùng
+        handleGetUser();
+
+        setNewUser({
+          user_name: '',
+          user_email: '',
+          user_avatar: '',
+          user_gender: '',
+          user_password: '',
+          user_role: '',
+        });
+
+        setOpenCreateForm(false);
+      } catch (error) {
+        console.error('Error creating user:', error);
       }
-
-      const userToCreate = {
-        ...newUser,
-        user_avatar: imageUrl || newUser.user_avatar,
-      };
-
-      await createAccount({ ...userToCreate, user_avatar: imageUrl }, dispatch);
-
-      // Làm mới danh sách người dùng
-      handleGetUser();
-
-      setNewUser({
-        user_name: '',
-        user_email: '',
-        user_avatar: '',
-        user_gender: '',
-        user_password: '',
-        user_role: '',
-      });
-
-      setOpenCreateForm(false);
-    } catch (error) {
-      console.error('Error creating user:', error);
-    }
-  };
+    };
 
   useEffect(() => {
     handleGetUser();

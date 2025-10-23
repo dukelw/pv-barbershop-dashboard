@@ -59,7 +59,7 @@ export function AccountPopover({ data = [], sx, ...other }: AccountPopoverProps)
     Cookies.remove('user_email');
     Cookies.remove('user_name');
     Cookies.remove('user_role');
-    window.location.href = `${import.meta.env.VITE_USER_BASE_URL}/logout`;
+    window.location.href = `${import.meta.env.VITE_USER_BASE_URL}logout`;
   };
 
   const handleClickItem = useCallback(

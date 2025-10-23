@@ -25,7 +25,7 @@ export function PaymentView() {
 
   const handleGetAppointment = async () => {
     const data = await getAppointment(id, dispatch, true);
-    const usableDiscount = await getUserDiscounts(data.metadata?.customer, dispatch);
+    const usableDiscount = await getUserDiscounts(data.metadata?.customer._id, dispatch);
     setAppointment(data.metadata);
     setDiscount(usableDiscount?.data?.metadata);
   };
@@ -87,11 +87,11 @@ export function PaymentView() {
         </Typography>
 
         <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
-          <Avatar src={appointment.barber?.user_avatar} />
+          <Avatar src={appointment.barber?.user_avatar || appointment.barber.avatar} />
           <Box>
             <Typography fontWeight="bold">{appointment.customer_name}</Typography>
             <Typography fontSize="0.875rem" color="text.secondary">
-              Thợ: {appointment.barber?.user_name}
+              Thợ: {appointment.barber?.user_name || appointment.barber.name}
             </Typography>
           </Box>
         </Stack>
