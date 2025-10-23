@@ -856,7 +856,6 @@ export const getAllServices = async (dispatch) => {
       },
     });
     dispatch(getAllServicesSuccess(res.data));
-    console.log(res);
     return res.data.metadata;
   } catch (error) {
     dispatch(getAllServicesFailure());
@@ -1102,7 +1101,6 @@ export const getAllInventories = async (dispatch) => {
       },
     });
     dispatch(getAllInventorysSuccess(res.data));
-    console.log(res);
     return res.data.metadata;
   } catch (error) {
     dispatch(getAllInventorysFailure());
@@ -1193,7 +1191,6 @@ export const getAllInvoices = async (populate = true, dispatch) => {
       },
     });
     dispatch(getAllInvoicesSuccess(res.data));
-    console.log(res);
     return res.data.metadata;
   } catch (error) {
     dispatch(getAllInvoicesFailure());
@@ -1260,7 +1257,6 @@ export const getAllReviews = async (dispatch) => {
       },
     });
     dispatch(getAllReviewsSuccess(res.data));
-    console.log(res);
     return res.data.metadata;
   } catch (error) {
     dispatch(getAllReviewsFailure());
@@ -1276,7 +1272,6 @@ export const getAllReviewsOfBarber = async (barberID, dispatch) => {
       },
     });
     dispatch(getAllReviewsSuccess(res.data));
-    console.log(res);
     return res.data.metadata;
   } catch (error) {
     dispatch(getAllReviewsFailure());

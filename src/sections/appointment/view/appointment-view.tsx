@@ -79,7 +79,6 @@ export function AppointmentView() {
 
   const handleGetAllAppointment = async () => {
     const data = await getAllAppointments(dispatch);
-    console.log('data', data.metadata);
     setAppointments(data.metadata);
   };
 
